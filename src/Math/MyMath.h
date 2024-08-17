@@ -4,3 +4,4 @@
 
 #pragma once
 #include "Vector.h"
+#include "GMethod.h"
