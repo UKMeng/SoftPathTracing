@@ -21,6 +21,11 @@ public:
         return Vec3f(x - other.x, y - other.y, z - other.z);
     }
 
+    Vec3f operator/(const float& scale) const
+    {
+        return Vec3f(x / scale, y / scale, z / scale);
+    }
+
     Vec3f Normalize() const
     {
         float rootInv = Q_rsqrt(x * x + y * y + z * z);
@@ -32,18 +37,16 @@ public:
         return Vec3f(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
     }
 
+    float Dot(const Vec3f& other) const
+    {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    static Vec3f Normalize(const Vec3f& a);
+
     void Print() const;
 private:
 
-};
-
-class Vec2f
-{
-public:
-    float x, y;
-    Vec2f(): x(0), y(0) {};
-    Vec2f(float x): x(x), y(x) {};
-    Vec2f(float x, float y) : x(x), y(y) {};
 };
 
 class Vec2i
@@ -53,4 +56,58 @@ public:
     Vec2i(): x(0), y(0) {};
     Vec2i(int x): x(x), y(x) {};
     Vec2i(int x, int y) : x(x), y(y) {};
+};
+
+class Vec2f
+{
+public:
+    float x, y;
+    Vec2f(): x(0), y(0) {};
+    Vec2f(float x): x(x), y(x) {};
+    Vec2f(float x, float y) : x(x), y(y) {};
+    Vec2f(Vec2i v): x(static_cast<float>(v.x)), y(static_cast<float>(v.y)) {};
+
+    Vec2f operator+(const Vec2f& other) const
+    {
+        return Vec2f(x + other.x, y + other.y);
+    }
+
+    Vec2f operator-(const float& num) const
+    {
+        return Vec2f(x - num, y - num);
+    }
+
+    Vec2f operator*(const float& scale) const
+    {
+        return Vec2f(x * scale, y * scale);
+    }
+
+    friend Vec2f operator*(const float& scale, const Vec2f& vec)
+    {
+        return Vec2f(vec.x * scale, vec.y * scale);
+    }
+
+    Vec2f operator/(const Vec2f& other) const
+    {
+        return Vec2f(x / other.x, y / other.y);
+    }
+};
+
+class Vec4f
+{
+public:
+    float x, y, z, w;
+    Vec4f(): x(0), y(0), z(0), w(0) {};
+    Vec4f(float x): x(x), y(x), z(x), w(x) {};
+    Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
+    Vec4f(Vec2f v, float z, float w): x(v.x), y(v.y), z(z), w(w) {};
+
+    float Dot(const Vec4f& other) const
+    {
+        return x * other.x + y * other.y + z * other.z + w * other.w;
+    }
+
+    Vec3f xyz() const {
+        return {x, y, z};
+    }
 };

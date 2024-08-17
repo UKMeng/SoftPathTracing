@@ -2,20 +2,28 @@
 #include "MyMath.h"
 #include "ThreadPool.h"
 #include "Film.h"
+#include "Camera.h"
+#include "Sphere.h"
 
 int main()
 {
-    Vec3f test = {0, 1, 2};
-    test.Print();
+    Film film { 192, 108 };
 
-    Film film { 1920, 1080 };
+    Camera camera { film, { 0, 0, 1 }, { 0, 0, 0 }, 90};
+
+    Sphere sphere { {0, 0, 0}, 0.5f};
 
     ThreadPool threadPool {};
 
-    threadPool.ParallelFor(200, 100,
+    threadPool.ParallelFor(film.GetWidth(), film.GetHeight(),
                            [&](size_t x, size_t y)
                            {
-                               film.SetPixel(x, y, {1.0, 0.0, 0.0});
+                               auto ray = camera.GenerateRay(Vec2i(x, y));
+                               auto result = sphere.Intersect(ray);
+                               if (result.has_value())
+                               {
+                                   film.SetPixel(x, y, {1.0, 0.0, 0.0});
+                               }
                            }
     );
 

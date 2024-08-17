@@ -47,6 +47,17 @@ public:
         return result;
     }
 
+    Vec4f operator*(const Vec4f& other) const
+    {
+        float result[4];
+        for (int i = 0; i < 4; ++i)
+        {
+            Vec4f t = {data[i * 4 + 0], data[i * 4 + 1], data[i * 4 + 2], data[i * 4 + 3]};
+            result[i] = t.Dot(other);
+        }
+        return {result[0], result[1], result[2], result[3]};
+    }
+
     // Matrix determinant
     float determinant() const
     {

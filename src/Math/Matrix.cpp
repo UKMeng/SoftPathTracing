@@ -13,7 +13,7 @@ Mat4f Mat4f::Perspective(float fovy, float aspect, float zNear, float zFar)
 {
     Mat4f projection = Mat4f::Identity();
 
-    float top = zNear * tan(fovy);
+    float top = zNear * tan(fovy / 2.0);
     float bottom = -top;
     float right = top * aspect;
     float left = -right;
@@ -55,7 +55,7 @@ Mat4f Mat4f::LookAt(Vec3f eye, Vec3f center, Vec3f up)
     Vec3f yAxis = zAxis.Cross(xAxis);
 
     Mat4f rotate({xAxis.x, xAxis.y, xAxis.z, 0,
-                  yAxis.x, yAxis.y, yAxis.y, 0,
+                  yAxis.x, yAxis.y, yAxis.z, 0,
                   zAxis.x, zAxis.y, zAxis.z, 0,
                   0, 0, 0, 1});
     view = rotate * translate;
