@@ -6,6 +6,9 @@
 
 #include <array>
 #include <cassert>
+#include <cmath>
+
+#include "Vector.h"
 
 class Mat4f
 {
@@ -16,18 +19,22 @@ public:
         data.fill(0.0f);
         data[0] = data[5] = data[10] = data[15] = diagonal;
     }
+    Mat4f(const std::array<float, 16>& initData) : data(initData) {}
 
     // Access element at row, col
-    float& operator()(int row, int col) {
+    float& operator()(int row, int col)
+    {
         return data[row * 4 + col];
     }
 
-    const float& operator()(int row, int col) const {
+    const float& operator()(int row, int col) const
+    {
         return data[row * 4 + col];
     }
 
     // Matrix multiplication
-    Mat4f operator*(const Mat4f& other) const {
+    Mat4f operator*(const Mat4f& other) const
+    {
         Mat4f result;
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
@@ -41,7 +48,8 @@ public:
     }
 
     // Matrix determinant
-    float determinant() const {
+    float determinant() const
+    {
         return data[0] * (data[5] * (data[10] * data[15] - data[11] * data[14]) - data[6] * (data[9] * data[15] - data[11] * data[13]) + data[7] * (data[9] * data[14] - data[10] * data[13]))
                - data[1] * (data[4] * (data[10] * data[15] - data[11] * data[14]) - data[6] * (data[8] * data[15] - data[11] * data[12]) + data[7] * (data[8] * data[14] - data[10] * data[12]))
                + data[2] * (data[4] * (data[9] * data[15] - data[11] * data[13]) - data[5] * (data[8] * data[15] - data[11] * data[12]) + data[7] * (data[8] * data[13] - data[9] * data[12]))
@@ -49,7 +57,8 @@ public:
     }
 
     // Matrix inversion (simple version)
-    Mat4f inverse() const {
+    Mat4f Inverse() const
+    {
         Mat4f result;
         float det = determinant();
         assert(det != 0.0f); // Matrix must be invertible
@@ -74,6 +83,17 @@ public:
         return result;
     }
 
+    static Mat4f Identity();
+
+    /// Get a perspective projection matrix (Use left hand coordinates, and view direction is +z)
+    /// \param fovy is a radian, if use degree, should convert to radians by use Radians(degree)
+    /// \param aspect
+    /// \param zNear
+    /// \param zFar
+    /// \return
+    static Mat4f Perspective(float fovy, float aspect, float zNear, float zFar);
+
+    static Mat4f LookAt(Vec3f eye, Vec3f center, Vec3f up);
 private:
     std::array<float, 16> data;
 };

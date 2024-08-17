@@ -3,18 +3,9 @@
 #include "ThreadPool.h"
 #include "Film.h"
 
-class SimpleTask : public Task
-{
-public:
-    void Run() override
-    {
-        std::cout << "Hello, World!" << std::endl;
-    }
-};
-
 int main()
 {
-    Vec3 test = {0, 1, 2};
+    Vec3f test = {0, 1, 2};
     test.Print();
 
     Film film { 1920, 1080 };
@@ -31,12 +22,5 @@ int main()
     threadPool.Wait();
     film.Save("test.ppm");
 
-
-    threadPool.AddTask(new SimpleTask());
-    threadPool.AddTask(new SimpleTask());
-    threadPool.AddTask(new SimpleTask());
-    threadPool.AddTask(new SimpleTask());
-    threadPool.AddTask(new SimpleTask());
-    threadPool.AddTask(new SimpleTask());
     return 0;
 }

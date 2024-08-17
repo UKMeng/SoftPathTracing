@@ -19,10 +19,10 @@ public:
 
     size_t GetWidth() const { return m_Width; }
     size_t GetHeight() const { return m_Height; }
-    Vec3 GetPixel(size_t x, size_t y) { return m_Pixels[y * m_Width + x]; }
-    void SetPixel(size_t x, size_t y, const Vec3& color) { m_Pixels[y * m_Width + x] = color; }
+    Vec3f GetPixel(size_t x, size_t y) { return m_Pixels[y * m_Width + x]; }
+    void SetPixel(size_t x, size_t y, const Vec3f& color) { m_Pixels[y * m_Width + x] = color; }
 
 private:
     size_t m_Width, m_Height;
-    std::vector<Vec3> m_Pixels;
+    std::vector<Vec3f> m_Pixels;
 };
