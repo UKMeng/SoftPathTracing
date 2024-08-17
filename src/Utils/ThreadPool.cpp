@@ -4,8 +4,9 @@
 
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(size_t threadCount) : m_Alive(true)
+ThreadPool::ThreadPool(size_t threadCount)
 {
+    m_Alive = 1;
     if (threadCount == 0)
     {
         threadCount = std::thread::hardware_concurrency();
@@ -19,14 +20,10 @@ ThreadPool::ThreadPool(size_t threadCount) : m_Alive(true)
 
 ThreadPool::~ThreadPool()
 {
-    // wait all task done
-    while (!m_TaskList.empty())
-    {
-        std::this_thread::yield();
-    }
+    Wait();
 
     // when all task done, set m_Alive false to stop threads
-    m_Alive = false;
+    m_Alive = 0;
     for (auto& thread: m_Threads)
     {
         thread.join();
@@ -36,13 +33,15 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::AddTask(Task *task)
 {
-    std::lock_guard<std::mutex> guard(m_Mutex);
+    // std::lock_guard<std::mutex> guard(m_Mutex);
+    Guard guard(m_SpinLock);
     m_TaskList.emplace_back(task);
 }
 
 Task *ThreadPool::GetTask()
 {
-    std::lock_guard<std::mutex> guard(m_Mutex);
+    // std::lock_guard<std::mutex> guard(m_Mutex);
+    Guard guard(m_SpinLock);
     if (m_TaskList.empty())
     {
         return nullptr;
@@ -55,7 +54,7 @@ Task *ThreadPool::GetTask()
 
 void ThreadPool::Worker(ThreadPool *master)
 {
-    while (master->m_Alive)
+    while (master->m_Alive == 1)
     {
         Task *task = master->GetTask();
         if (task != nullptr)
@@ -69,4 +68,37 @@ void ThreadPool::Worker(ThreadPool *master)
     }
 }
 
+void ThreadPool::Wait() const
+{
+    while (!m_TaskList.empty())
+    {
+        std::this_thread::yield();
+    }
+}
 
+class ParallelForTask: public Task
+{
+public:
+    ParallelForTask(size_t x, size_t y, const std::function<void(size_t, size_t)> &lambda): x(x), y(y), lambda(lambda) {}
+
+    void Run() override
+    {
+        lambda(x, y);
+    }
+private:
+    size_t x, y;
+    std::function<void(size_t, size_t)> lambda;
+};
+
+void ThreadPool::ParallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)> &lambda)
+{
+    Guard guard(m_SpinLock);
+
+    for (size_t x = 0; x < width; x++)
+    {
+        for (size_t y = 0; y < height; y++)
+        {
+            m_TaskList.emplace_back(new ParallelForTask(x, y, lambda));
+        }
+    }
+}
