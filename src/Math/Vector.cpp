@@ -4,7 +4,7 @@
 
 #include "Vector.h"
 
-void Vec3::Print() const
+void Vec3f::Print() const
 {
     std::cout << "x: " << x << " y: " << y << " z: " << z << std::endl;
 }
