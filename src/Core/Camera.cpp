@@ -23,5 +23,5 @@ Ray Camera::GenerateRay(const Vec2i &pixelCoord, const Vec2f &offset) const
     Vec4f clip = {ndc, 0.f, 1.f};
     Vec4f world = m_WorldFromCamera * m_CameraFromClip * clip;
     Vec3f worldPos = world.xyz() / world.w;
-    return Ray(m_Pos, Vec3f::Normalize(worldPos - m_Pos));
+    return Ray(m_Pos, Normalize(worldPos - m_Pos));
 }

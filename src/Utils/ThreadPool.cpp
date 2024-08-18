@@ -35,7 +35,7 @@ void ThreadPool::AddTask(Task *task)
 {
     // std::lock_guard<std::mutex> guard(m_Mutex);
     Guard guard(m_SpinLock);
-    m_TaskList.emplace_back(task);
+    m_TaskList.push(task);
 }
 
 Task *ThreadPool::GetTask()
@@ -48,7 +48,7 @@ Task *ThreadPool::GetTask()
     }
 
     Task *task = m_TaskList.front();
-    m_TaskList.pop_front();
+    m_TaskList.pop();
     return task;
 }
 
@@ -72,6 +72,7 @@ void ThreadPool::Wait() const
 {
     while (!m_TaskList.empty())
     {
+        ThreadPool::UpdateProgress(1.0 - m_TaskList.size() / m_TotalTaskCount);
         std::this_thread::yield();
     }
 }
@@ -94,11 +95,13 @@ void ThreadPool::ParallelFor(size_t width, size_t height, const std::function<vo
 {
     Guard guard(m_SpinLock);
 
+    m_TotalTaskCount = width * height;
+
     for (size_t x = 0; x < width; x++)
     {
         for (size_t y = 0; y < height; y++)
         {
-            m_TaskList.emplace_back(new ParallelForTask(x, y, lambda));
+            m_TaskList.push(new ParallelForTask(x, y, lambda));
         }
     }
 }

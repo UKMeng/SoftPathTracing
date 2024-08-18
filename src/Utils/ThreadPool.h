@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <iostream>
 #include <vector>
-#include <list>
+#include <queue>
 #include <thread>
 #include <mutex>
 #include <atomic>
@@ -62,10 +63,28 @@ public:
 
     static void Worker(ThreadPool* master);
 
+    inline void UpdateProgress(float progress) const
+    {
+        int barWidth = 70;
+
+        std::cout << "[";
+        int pos = barWidth * progress;
+        for (int i = 0; i < barWidth; ++i) {
+            if (i < pos) std::cout << "=";
+            else if (i == pos) std::cout << ">";
+            else std::cout << " ";
+        }
+        std::cout << "] " << int(progress * 100.0) << " %\r";
+        std::cout.flush();
+    }
+
+
 private:
     std::vector<std::thread> m_Threads;
-    std::list<Task*> m_TaskList;
+    std::queue<Task*> m_TaskList;
     // std::mutex m_Mutex;
     SpinLock m_SpinLock {};
     std::atomic<int> m_Alive;
+
+    float m_TotalTaskCount;
 };

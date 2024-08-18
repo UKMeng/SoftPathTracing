@@ -6,13 +6,12 @@
 
 #include "MyMath.h"
 
-class Ray
+struct Ray
 {
-public:
-    Ray(Vec3f ori, Vec3f dir): m_Ori(ori), m_Dir(dir) {};
+    Vec3f origin, direction;
 
-    const Vec3f& GetOrigin() const {return m_Ori;}
-    const Vec3f& GetDirection() const {return m_Dir;}
-private:
-    Vec3f m_Ori, m_Dir;
+
+    Ray(Vec3f ori, Vec3f dir): origin(ori), direction(dir) {};
+
+    Vec3f HitPos(float t) const { return origin + t * direction; }
 };

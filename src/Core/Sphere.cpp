@@ -6,9 +6,9 @@
 
 std::optional<float> Sphere::Intersect(const Ray &ray) const
 {
-    Vec3f co = ray.GetOrigin() - m_Center;
+    Vec3f co = ray.origin - m_Center;
 
-    float b = 2 * ray.GetDirection().Dot(co);
+    float b = 2 * ray.direction.Dot(co);
     float c = co.Dot(co) - m_Radius * m_Radius;
     float delta = b * b - 4 * c;
 

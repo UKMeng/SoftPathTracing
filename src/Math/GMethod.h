@@ -36,3 +36,15 @@ inline float Q_rsqrt(float number)
 
     return y;
 }
+
+template<typename T>
+inline T Normalize(const T& vec)
+{
+    return vec.Normalize();
+}
+
+template<typename T>
+inline float Dot(const T& vec1, const T& vec2)
+{
+    return vec1.Dot(vec2);
+}

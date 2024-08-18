@@ -16,6 +16,11 @@ public:
     Vec3f(float x): x(x), y(x), z(x) {};
     Vec3f(float x, float y, float z) : x(x), y(y), z(z) {};
 
+    Vec3f operator+(const Vec3f& other) const
+    {
+        return Vec3f(x + other.x, y + other.y, z + other.z);
+    }
+
     Vec3f operator-(const Vec3f& other) const
     {
         return Vec3f(x - other.x, y - other.y, z - other.z);
@@ -24,6 +29,11 @@ public:
     Vec3f operator/(const float& scale) const
     {
         return Vec3f(x / scale, y / scale, z / scale);
+    }
+
+    friend Vec3f operator*(const float& scale, const Vec3f& vec)
+    {
+        return Vec3f(vec.x * scale, vec.y * scale, vec.z * scale);
     }
 
     Vec3f Normalize() const
@@ -42,7 +52,7 @@ public:
         return x * other.x + y * other.y + z * other.z;
     }
 
-    static Vec3f Normalize(const Vec3f& a);
+//    static Vec3f Normalize(const Vec3f& a);
 
     void Print() const;
 private:
