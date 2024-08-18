@@ -52,7 +52,8 @@ public:
         return x * other.x + y * other.y + z * other.z;
     }
 
-//    static Vec3f Normalize(const Vec3f& a);
+    static Vec3f Min(const Vec3f& a, const Vec3f& b);
+    static Vec3f Max(const Vec3f& a, const Vec3f& b);
 
     void Print() const;
 private:

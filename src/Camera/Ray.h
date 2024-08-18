@@ -10,8 +10,14 @@ struct Ray
 {
     Vec3f origin, direction;
 
-
     Ray(Vec3f ori, Vec3f dir): origin(ori), direction(dir) {};
 
     Vec3f HitPos(float t) const { return origin + t * direction; }
+};
+
+struct HitInfo
+{
+    float t;
+    Vec3f hitPos;
+    Vec3f normal;
 };

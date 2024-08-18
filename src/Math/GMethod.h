@@ -48,3 +48,9 @@ inline float Dot(const T& vec1, const T& vec2)
 {
     return vec1.Dot(vec2);
 }
+
+template<typename T>
+inline T Cross(const T& vec1, const T& vec2)
+{
+    return vec1.Cross(vec2);
+}

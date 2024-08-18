@@ -24,15 +24,17 @@ int main()
 
     std::atomic<int> finishedCount = 0;
 
+    Object& obj = sphere;
+
     threadPool.ParallelFor(film.GetWidth(), film.GetHeight(),
                            [&](size_t x, size_t y)
                            {
                                auto ray = camera.GenerateRay(Vec2i(x, y));
-                               auto result = sphere.Intersect(ray);
+                               auto result = obj.Intersect(ray);
                                if (result.has_value())
                                {
-                                   Vec3f hitPos = ray.HitPos(result.value());
-                                   Vec3f normal = Normalize(hitPos - sphere.GetCenter());
+                                   Vec3f hitPos = result->hitPos;
+                                   Vec3f normal = result->normal;
                                    Vec3f lightDir = Normalize(lightPos - hitPos);
                                    float cosine = std::max(0.0f, Dot(normal, lightDir));
                                    film.SetPixel(x, y, {cosine, cosine, cosine});
