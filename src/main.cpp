@@ -1,5 +1,4 @@
 #include <iostream>
-#include <atomic>
 #include "MyMath.h"
 #include "ThreadPool.h"
 #include "Film.h"
@@ -15,6 +14,8 @@ int main()
 
     Film film { width, height };
 
+    ProgressBar progress { width * height };
+
     Camera camera { film, { -1, 0, 0 }, { 0, 0, 0 }, 90};
 
     Sphere sphere { {0, 0, 0}, 0.5f};
@@ -24,8 +25,6 @@ int main()
     ThreadPool threadPool {};
 
     Vec3f lightPos {-1, 2, 1};
-
-    std::atomic<int> finishedCount = 0;
 
     Object& obj = bunny;
 
@@ -42,10 +41,7 @@ int main()
                                    float cosine = std::max(0.0f, Dot(normal, lightDir));
                                    film.SetPixel(x, y, {cosine, cosine, cosine});
                                }
-                               finishedCount++;
-                               if (finishedCount % (film.GetWidth() * 10) == 0) {
-                                   UpdateProgress( static_cast<float>(finishedCount) / static_cast<float>(film.GetWidth() * film.GetHeight()));
-                               }
+                               progress.Update(1);
                            }
     );
 
