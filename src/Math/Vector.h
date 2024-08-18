@@ -7,6 +7,8 @@
 
 #include "GMethod.h"
 
+class Vec4f;
+
 class Vec3f
 {
 public:
@@ -54,6 +56,9 @@ public:
 
     static Vec3f Min(const Vec3f& a, const Vec3f& b);
     static Vec3f Max(const Vec3f& a, const Vec3f& b);
+
+
+    Vec4f EularAngleToQuaternion();
 
     void Print() const;
 private:
@@ -112,6 +117,7 @@ public:
     Vec4f(float x): x(x), y(x), z(x), w(x) {};
     Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
     Vec4f(Vec2f v, float z, float w): x(v.x), y(v.y), z(z), w(w) {};
+    Vec4f(Vec3f v, float w): x(v.x), y(v.y), z(v.z), w(w) {};
 
     float Dot(const Vec4f& other) const
     {
@@ -120,5 +126,13 @@ public:
 
     Vec3f xyz() const {
         return {x, y, z};
+    }
+
+    operator Vec3f() const {
+        if (w == 0.0f) {
+            return {x, y, z};
+        } else {
+            return {x / w, y / w, z / w};
+        }
     }
 };

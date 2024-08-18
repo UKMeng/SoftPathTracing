@@ -13,6 +13,8 @@ struct Ray
     Ray(Vec3f ori, Vec3f dir): origin(ori), direction(dir) {};
 
     Vec3f HitPos(float t) const { return origin + t * direction; }
+
+    Ray RayFromWorldToModel(const Mat4f& worldToModel) const;
 };
 
 struct HitInfo

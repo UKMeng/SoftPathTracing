@@ -8,16 +8,17 @@ std::optional<HitInfo> Sphere::Intersect(const Ray& ray, float tMin, float tMax)
 {
     Vec3f co = ray.origin - center;
 
-    float b = 2 * ray.direction.Dot(co);
-    float c = co.Dot(co) - radius * radius;
-    float delta = b * b - 4 * c;
+    float a = Dot(ray.direction, ray.direction);
+    float b = 2 * Dot(ray.direction, co);
+    float c = Dot(co, co) - radius * radius;
+    float delta = b * b - 4 * a * c;
 
     if (delta < 0) return {};
 
-    float hit_t = (-b - sqrt(delta)) * 0.5;
+    float hit_t = (-b - sqrt(delta)) * 0.5 / a;
     if (hit_t < 0)
     {
-        hit_t = (-b + sqrt(delta)) * 0.5;
+        hit_t = (-b + sqrt(delta)) * 0.5 / a;
     }
     if (hit_t > tMin && hit_t < tMax)
     {

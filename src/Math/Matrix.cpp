@@ -62,4 +62,32 @@ Mat4f Mat4f::LookAt(Vec3f eye, Vec3f center, Vec3f up)
     return view;
 }
 
+Mat4f Mat4f::Translate(Vec3f t)
+{
+    return Mat4f({1, 0, 0, t.x,
+                  0, 1, 0, t.y,
+                  0, 0, 1, t.z,
+                  0, 0, 0, 1});
+}
+
+Mat4f Mat4f::Scale(Vec3f s)
+{
+    return Mat4f({s.x, 0, 0, 0,
+                  0, s.y, 0, 0,
+                  0, 0, s.z, 0,
+                  0, 0, 0, 1});
+}
+
+Mat4f Mat4f::Rotate(Vec3f eularAngle)
+{
+    Vec4f quaternion = eularAngle.EularAngleToQuaternion();
+
+    float a = quaternion.x, b = quaternion.y, c = quaternion.z, d = quaternion.w;
+
+    return Mat4f({1, 0, 0, 0,
+                  0, 1 - 2 * c * c - 2 * d * d, 2 * b * c - 2 * a * d, 2 * a * c + 2 * b * d,
+                  0, 2 * b * c + 2 * a * d, 1 - 2 * b * b - 2 * d * d, 2 * c * d - 2 * a * b,
+                  0, 2 * b * d - 2 * a * c, 2 * a * b + 2 * c * d, 1 - 2 * b * b - 2 * c * c});
+}
+
 

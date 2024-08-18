@@ -94,6 +94,19 @@ public:
         return result;
     }
 
+    Mat4f Transpose() const
+    {
+        Mat4f result;
+        for (int i = 0; i < 4; ++i)
+        {
+            for (int j = 0; j < 4; ++j)
+            {
+                result(i, j) = data[j * 4 + i];
+            }
+        }
+        return result;
+    }
+
     static Mat4f Identity();
 
     /// Get a perspective projection matrix (Use left hand coordinates, and view direction is +z)
@@ -105,6 +118,12 @@ public:
     static Mat4f Perspective(float fovy, float aspect, float zNear, float zFar);
 
     static Mat4f LookAt(Vec3f eye, Vec3f center, Vec3f up);
+
+    static Mat4f Translate(Vec3f t);
+
+    static Mat4f Scale(Vec3f s);
+
+    static Mat4f Rotate(Vec3f r);
 private:
     std::array<float, 16> data;
 };
