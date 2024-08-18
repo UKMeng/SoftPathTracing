@@ -1,0 +1,3 @@
+[submodule "3rdParty/rapidobj"]
+	path = 3rdParty/rapidobj
+	url = https://github.com/guybrush77/rapidobj

@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Sphere.h"
 #include "ProgressBar.h"
+#include "Model.h"
 
 int main()
 {
@@ -14,17 +15,19 @@ int main()
 
     Film film { width, height };
 
-    Camera camera { film, { 0, 0, 1 }, { 0, 0, 0 }, 90};
+    Camera camera { film, { -1, 0, 0 }, { 0, 0, 0 }, 90};
 
     Sphere sphere { {0, 0, 0}, 0.5f};
 
+    Model bunny("models/simple_dragon.obj");
+
     ThreadPool threadPool {};
 
-    Vec3f lightPos {-1, 1, 1};
+    Vec3f lightPos {-1, 2, 1};
 
     std::atomic<int> finishedCount = 0;
 
-    Object& obj = sphere;
+    Object& obj = bunny;
 
     threadPool.ParallelFor(film.GetWidth(), film.GetHeight(),
                            [&](size_t x, size_t y)
