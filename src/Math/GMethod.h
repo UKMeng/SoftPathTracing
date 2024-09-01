@@ -19,6 +19,12 @@ inline float Radians(const float& degree)
     return degree * M_PI / 180.0f;
 }
 
+inline float Pow(const float& val, const float& power)
+{
+    return std::pow(val, power);
+}
+
+
 // reference: https://en.wikipedia.org/wiki/Fast_inverse_square_root
 inline float Q_rsqrt(float number)
 {
