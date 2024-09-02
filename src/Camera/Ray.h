@@ -5,6 +5,7 @@
 #pragma once
 
 #include "MyMath.h"
+#include "Material.h"
 
 struct Ray
 {
@@ -22,4 +23,5 @@ struct HitInfo
     float t;
     Vec3f hitPos;
     Vec3f normal;
+    const Material* material = nullptr;
 };

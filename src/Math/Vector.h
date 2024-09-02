@@ -28,6 +28,16 @@ public:
         return Vec3f(x - other.x, y - other.y, z - other.z);
     }
 
+    Vec3f operator-() const
+    {
+        return Vec3f(-x, -y, -z);
+    }
+
+    Vec3f operator*(const Vec3f& other) const
+    {
+        return Vec3f(x * other.x, y * other.y, z * other.z);
+    }
+
     Vec3f operator/(const float& scale) const
     {
         return Vec3f(x / scale, y / scale, z / scale);
@@ -36,6 +46,24 @@ public:
     friend Vec3f operator*(const float& scale, const Vec3f& vec)
     {
         return Vec3f(vec.x * scale, vec.y * scale, vec.z * scale);
+    }
+
+    // return self reference to support chain operator
+    // e.g. a += b += c;
+    Vec3f& operator+=(const Vec3f& other)
+    {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        return *this;
+    }
+
+    Vec3f& operator*=(const Vec3f& other)
+    {
+        x *= other.x;
+        y *= other.y;
+        z *= other.z;
+        return *this;
     }
 
     Vec3f Normalize() const
@@ -52,6 +80,11 @@ public:
     float Dot(const Vec3f& other) const
     {
         return x * other.x + y * other.y + z * other.z;
+    }
+
+    float Length() const
+    {
+        return Q_rsqrt(x * x + y * y + z * z);
     }
 
     static Vec3f Min(const Vec3f& a, const Vec3f& b);

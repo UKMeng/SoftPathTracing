@@ -6,13 +6,13 @@
 
 #include <MyMath.h>
 
-class RGB
+class ColorRGB
 {
 public:
     int r, g, b;
-    RGB(int r, int g, int b) : r(r), g(g), b(b) {}
+    ColorRGB(int r, int g, int b) : r(r), g(g), b(b) {}
 
-    RGB(const Vec3f& intensity)
+    ColorRGB(const Vec3f& intensity)
     {
         r = Clamp(Pow(intensity.x, 1 / 2.2) * 255, 0, 255);
         g = Clamp(Pow(intensity.y, 1 / 2.2) * 255, 0, 255);
@@ -23,9 +23,9 @@ public:
     operator Vec3f() const
     {
         return Vec3f {
-            Pow(r / 255.f, 2.2),
-            Pow(g / 255.f, 2.2),
-            Pow(b / 255.f, 2.2),
+            Pow(static_cast<float>(r) / 255.f, 2.2),
+            Pow(static_cast<float>(g) / 255.f, 2.2),
+            Pow(static_cast<float>(b) / 255.f, 2.2),
         };
     }
 };

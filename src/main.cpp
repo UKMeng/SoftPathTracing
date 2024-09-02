@@ -8,19 +8,21 @@
 #include "Model.h"
 #include "Plane.h"
 #include "Scene.h"
+#include "Frame.h"
+#include "ColorRGB.h"
 
 int main()
 {
-    const int width = 1920;
-    const int height = 1080;
+    const int width = 192 * 4;
+    const int height = 108 * 4;
 
     Film film { width, height };
 
     ProgressBar progress { width * height };
 
-    Camera camera { film, { -1.6, 0.0, 0 }, { 0, 0, 0 }, 90};
+    Camera camera { film, { -3.6, 0.0, 0 }, { 0, 0, 0 }, 45};
 
-    Sphere sphere { {0, 0, 0}, 0.5f};
+    Sphere sphere { {0, 0, 0}, 1.0f};
 
     Plane plane { {0, 0, 0}, {0, 1, 0}};
 
@@ -32,24 +34,81 @@ int main()
 
     Scene scene {};
 
-    scene.AddObject(&model, {0, 0, 0}, {0, 45, 0}, {1, 3, 2});
-    scene.AddObject(&sphere, {0, 0.0, 1.6}, {0, 0, 0}, {0.3, 0.3, 0.3});
+    scene.AddObject(model, {}, {0, 0, 0}, {0, 45, 0}, {1, 3, 2});
+    scene.AddObject(
+            sphere,
+            {{1, 1, 1}, false, Vec3f(ColorRGB(255, 128, 128))},
+            {0, 0.0, 2.5},
+            {0, 0, 0},
+            {1.0, 1.0, 1.0});
 
-    scene.AddObject(&plane, { 0, -0.5, 0});
+    scene.AddObject(
+            sphere,
+            {{1, 1, 1}, false, ColorRGB(128, 128, 255)},
+            {0, 0.0, -2.5},
+            {0, 0, 0},
+            {1.0, 1.0, 1.0});
+
+    scene.AddObject(
+            sphere,
+            {{1, 1, 1}, true },
+            {3, 0.5, -2},
+            {0, 0, 0},
+            {1.0, 1.0, 1.0});
+
+    scene.AddObject(plane, {}, { 0, -0.5, 0});
 
     threadPool.ParallelFor(film.GetWidth(), film.GetHeight(),
                            [&](size_t x, size_t y)
                            {
                                auto ray = camera.GenerateRay(Vec2i(x, y));
-                               auto result = scene.Intersect(ray);
-                               if (result.has_value())
+
+                               Vec3f beta = { 1, 1, 1 }; // total albedo
+                               Vec3f color = { 0, 0, 0 };
+
+                               while (true)
                                {
-                                   Vec3f hitPos = result->hitPos;
-                                   Vec3f normal = result->normal;
-                                   Vec3f lightDir = Normalize(lightPos - hitPos);
-                                   float cosine = std::max(0.0f, Dot(normal, lightDir));
-                                   film.SetPixel(x, y, {cosine, cosine, cosine});
+                                   auto result = scene.Intersect(ray);
+                                   if (result.has_value())
+                                   {
+                                       color += beta * result->material->emissive;
+                                       beta *= result->material->albedo;
+
+                                       ray.origin = result->hitPos;
+
+                                       Frame frame(result->normal);
+                                       Vec3f lightDir;
+                                       if (result->material->isSpecular)
+                                       {
+                                           // specular
+                                           Vec3f viewDir = frame.GetLocalFromWorld(-ray.direction);
+                                           lightDir = { -viewDir.x, viewDir.y, -viewDir.z };
+                                       }
+                                       else
+                                       {
+                                           // diffuse
+                                           // Acceptance-Rejection Sampling
+                                           do
+                                           {
+                                               lightDir = { GetRandomFloat(), GetRandomFloat(), GetRandomFloat() };
+                                           } while (lightDir.Length() > 1.0f);
+
+                                       }
+                                       ray.direction = frame.GetWorldFromLocal(lightDir);
+                                   }
+                                   else break;
                                }
+
+                               film.SetPixel(x, y, color);
+
+//                               if (result.has_value())
+//                               {
+//                                   Vec3f hitPos = result->hitPos;
+//                                   Vec3f normal = result->normal;
+//                                   Vec3f lightDir = Normalize(lightPos - hitPos);
+//                                   float cosine = std::max(0.0f, Dot(normal, lightDir));
+//
+//                               }
                                progress.Update(1);
                            }
     );

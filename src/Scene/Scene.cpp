@@ -12,7 +12,7 @@ std::optional<HitInfo> Scene::Intersect(const Ray &ray, float tMin, float tMax) 
     for (const auto& objectInstance: m_ObjectList)
     {
         Ray rayInModelSpace = ray.RayFromWorldToModel(objectInstance.invModelMatrix);
-        auto hitInfo = objectInstance.object->Intersect(rayInModelSpace, tMin, tMax);
+        auto hitInfo = objectInstance.object.Intersect(rayInModelSpace, tMin, tMax);
         if (hitInfo.has_value())
         {
             closestHitInfo = hitInfo;
@@ -25,16 +25,18 @@ std::optional<HitInfo> Scene::Intersect(const Ray &ray, float tMin, float tMax) 
     {
         closestHitInfo->hitPos = closestInstance->modelMatrix * Vec4f(closestHitInfo->hitPos, 1.0f);
         closestHitInfo->normal = Normalize((closestInstance->invModelMatrix.Transpose() * Vec4f(closestHitInfo->normal, 0.0f)).xyz()); // use Normal Matrix
+        closestHitInfo->material = &closestInstance->material;
+
     }
     return closestHitInfo;
 }
 
-void Scene::AddObject(const Object *object, const Vec3f &translate, const Vec3f &rotate, const Vec3f &scale)
+void Scene::AddObject(const Object& object, const Material& material, const Vec3f &translate, const Vec3f &rotate, const Vec3f &scale)
 {
     // Model Matrix - from model space to world space
     Mat4f modelMatrix = Mat4f::Translate(translate) * Mat4f::Rotate(rotate) * Mat4f::Scale(scale);
     Mat4f invModelMatrix = modelMatrix.Inverse();
-    m_ObjectList.emplace_back(object, modelMatrix, invModelMatrix);
+    m_ObjectList.emplace_back(object, material, modelMatrix, invModelMatrix);
 }
 
 AABB Scene::GetAABB()
