@@ -34,7 +34,7 @@ int main()
 
     Scene scene {};
 
-    scene.AddObject(model, {}, {0, 0, 0}, {0, 0, 0}, {1, 3, 2});
+    scene.AddObject(model, {ColorRGB(202,159,117)}, {0, 0, 0}, {0, 0, 0}, {1, 3, 2});
     scene.AddObject(
             sphere,
             {{1, 1, 1}, false, ColorRGB(255, 128, 128)},
@@ -53,52 +53,55 @@ int main()
             {3, 0.5, -2}
             );
 
-    scene.AddObject(plane, {}, { 0, -0.5, 0});
+    scene.AddObject(plane, {ColorRGB(120, 204, 157)}, { 0, -0.5, 0});
+
+    int spp = 8;
 
     threadPool.ParallelFor(film.GetWidth(), film.GetHeight(),
                            [&](size_t x, size_t y)
                            {
-                               auto ray = camera.GenerateRay(Vec2i(x, y));
-
-                               Vec3f beta = { 1, 1, 1 }; // total albedo
-                               Vec3f color = { 0, 0, 0 };
-
-                               while (true)
+                               for (int i = 0; i < spp; ++i)
                                {
-                                   auto result = scene.Intersect(ray);
-                                   if (result.has_value())
+                                   auto ray = camera.GenerateRay(Vec2i(x, y), { Abs(GetRandomFloat()), Abs(GetRandomFloat()) });
+
+                                   Vec3f beta = {1, 1, 1}; // total albedo
+                                   Vec3f color = {0, 0, 0};
+
+                                   while (true)
                                    {
-                                       color += beta * result->material->emissive;
-                                       beta *= result->material->albedo;
-
-                                       ray.origin = result->hitPos;
-
-                                       Frame frame(result->normal);
-                                       Vec3f lightDir;
-
-                                       if (result->material->isSpecular)
+                                       auto result = scene.Intersect(ray);
+                                       if (result.has_value())
                                        {
-                                           // specular
-                                           Vec3f viewDir = frame.GetLocalFromWorld(-ray.direction);
-                                           lightDir = { -viewDir.x, viewDir.y, -viewDir.z };
-                                       }
-                                       else
-                                       {
-                                           // diffuse
-                                           // Acceptance-Rejection Sampling
-                                           do
+                                           color += beta * result->material->emissive;
+                                           beta *= result->material->albedo;
+
+                                           ray.origin = result->hitPos;
+
+                                           Frame frame(result->normal);
+                                           Vec3f lightDir;
+
+                                           if (result->material->isSpecular)
                                            {
-                                               lightDir = { GetRandomFloat(), GetRandomFloat(), GetRandomFloat() };
-                                           } while (lightDir.Length() > 1.0f);
-                                           if (lightDir.y < 0) lightDir.y = -lightDir.y;
+                                               // specular
+                                               Vec3f viewDir = frame.GetLocalFromWorld(-ray.direction);
+                                               lightDir = {-viewDir.x, viewDir.y, -viewDir.z};
+                                           } else
+                                           {
+                                               // diffuse
+                                               // Acceptance-Rejection Sampling
+                                               do
+                                               {
+                                                   lightDir = {GetRandomFloat(), GetRandomFloat(), GetRandomFloat()};
+                                               } while (lightDir.Length() > 1.0f);
+                                               if (lightDir.y < 0) lightDir.y = -lightDir.y;
 
-                                       }
-                                       ray.direction = frame.GetWorldFromLocal(lightDir);
+                                           }
+                                           ray.direction = frame.GetWorldFromLocal(lightDir);
+                                       } else break;
                                    }
-                                   else break;
-                               }
 
-                               film.SetPixel(x, y, color);
+                                   film.AddSample(x, y, color);
+                               }
 
 //                               if (result.has_value())
 //                               {

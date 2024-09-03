@@ -10,6 +10,12 @@
 
 #include "MyMath.h"
 
+struct Pixel
+{
+    Vec3f color { 0, 0, 0 };
+    int sampleCount { 0 };
+};
+
 class Film
 {
 public:
@@ -19,10 +25,14 @@ public:
 
     size_t GetWidth() const { return m_Width; }
     size_t GetHeight() const { return m_Height; }
-    Vec3f GetPixel(size_t x, size_t y) { return m_Pixels[y * m_Width + x]; }
-    void SetPixel(size_t x, size_t y, const Vec3f& color) { m_Pixels[y * m_Width + x] = color; }
+    Pixel GetPixel(size_t x, size_t y) { return m_Pixels[y * m_Width + x]; }
+    void AddSample(size_t x, size_t y, const Vec3f& color)
+    {
+        m_Pixels[y * m_Width + x].color += color;
+        m_Pixels[y * m_Width + x].sampleCount++;
+    }
 
 private:
     size_t m_Width, m_Height;
-    std::vector<Vec3f> m_Pixels;
+    std::vector<Pixel> m_Pixels;
 };
