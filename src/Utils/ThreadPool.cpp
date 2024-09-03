@@ -4,6 +4,8 @@
 
 #include "ThreadPool.h"
 
+ThreadPool g_ThreadPool {}; // global thread pool
+
 ThreadPool::ThreadPool(size_t threadCount)
 {
     m_Alive = 1;

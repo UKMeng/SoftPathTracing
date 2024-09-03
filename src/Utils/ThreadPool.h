@@ -44,3 +44,5 @@ private:
     std::atomic<int> m_Alive;
     std::atomic<int> m_PendingTaskCount;
 };
+
+extern ThreadPool g_ThreadPool;

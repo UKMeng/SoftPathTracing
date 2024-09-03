@@ -9,6 +9,6 @@ file(GLOB_RECURSE source CONFIGURE_DEPENDS src/*.cpp)
 
 add_executable(SoftPathTracing ${source})
 
-target_include_directories(SoftPathTracing PUBLIC src/Math src/Utils src/Scene src/Camera)
+target_include_directories(SoftPathTracing PUBLIC src/Math src/Utils src/Scene src/Camera src/Renderer)
 
 target_link_libraries(SoftPathTracing rapidobj)

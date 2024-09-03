@@ -106,6 +106,7 @@ public:
     Vec2i(): x(0), y(0) {};
     Vec2i(int x): x(x), y(x) {};
     Vec2i(int x, int y) : x(x), y(y) {};
+    Vec2i(size_t x, size_t y): x(static_cast<int>(x)), y(static_cast<int>(y)) {};
 };
 
 class Vec2f

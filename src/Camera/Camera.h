@@ -19,8 +19,10 @@ public:
     /// \return a Ray in World Space
     Ray GenerateRay(const Vec2i &pixelCoord, const Vec2f &offset = {0.5, 0.5 }) const;
 
+    Film& GetFilm() const { return m_Film; }
+
 private:
-    Film &m_Film;
+    Film& m_Film;
     Vec3f m_Pos;
 
     Mat4f m_CameraFromClip;

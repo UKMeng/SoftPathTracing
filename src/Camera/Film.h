@@ -32,6 +32,12 @@ public:
         m_Pixels[y * m_Width + x].sampleCount++;
     }
 
+    void Clear()
+    {
+        m_Pixels.clear();
+        m_Pixels.resize(m_Width * m_Height);
+    }
+
 private:
     size_t m_Width, m_Height;
     std::vector<Pixel> m_Pixels;

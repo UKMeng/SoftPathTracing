@@ -4,13 +4,14 @@
 #include "Film.h"
 #include "Camera.h"
 #include "Sphere.h"
-#include "ProgressBar.h"
 #include "Model.h"
 #include "Plane.h"
 #include "Scene.h"
 #include "Frame.h"
 #include "ColorRGB.h"
 #include "RNG.h"
+#include "NormalRenderer.h"
+#include "SimpleRTRenderer.h"
 
 int main()
 {
@@ -19,8 +20,6 @@ int main()
 
     Film film { width, height };
 
-    ProgressBar progress { width * height };
-
     Camera camera { film, { -3.6, 0.0, 0 }, { 0, 0, 0 }, 45};
 
     Sphere sphere { {0, 0, 0}, 1.0f};
@@ -28,10 +27,6 @@ int main()
     Plane plane { {0, 0, 0}, {0, 1, 0}};
 
     Model model("models/simple_dragon.obj");
-
-    ThreadPool threadPool {};
-
-    Vec3f lightPos {-1, 2, 1};
 
     Scene scene {};
 
@@ -56,71 +51,13 @@ int main()
 
     scene.AddObject(plane, {ColorRGB(120, 204, 157)}, { 0, -0.5, 0});
 
-    RNG rng; // Random Number Generator ( Uniform Distribution [0, 1) )
+    NormalRenderer normalRenderer { camera, scene };
+    normalRenderer.Render(1, "Normal.ppm");
 
-    int spp = 32;
+    film.Clear();
 
-    threadPool.ParallelFor(film.GetWidth(), film.GetHeight(),
-                           [&](size_t x, size_t y)
-                           {
-                               for (int i = 0; i < spp; ++i)
-                               {
-                                   auto ray = camera.GenerateRay(Vec2i(x, y), { rng.Uniform(), rng.Uniform() });
-
-                                   Vec3f beta = {1, 1, 1}; // total albedo
-                                   Vec3f color = {0, 0, 0};
-
-                                   while (true)
-                                   {
-                                       auto result = scene.Intersect(ray);
-                                       if (result.has_value())
-                                       {
-                                           color += beta * result->material->emissive;
-                                           beta *= result->material->albedo;
-
-                                           ray.origin = result->hitPos;
-
-                                           Frame frame(result->normal);
-                                           Vec3f lightDir;
-
-                                           if (result->material->isSpecular)
-                                           {
-                                               // specular
-                                               Vec3f viewDir = frame.GetLocalFromWorld(-ray.direction);
-                                               lightDir = {-viewDir.x, viewDir.y, -viewDir.z};
-                                           } else
-                                           {
-                                               // diffuse
-                                               // Acceptance-Rejection Sampling
-                                               do
-                                               {
-                                                   lightDir = { rng.Uniform(), rng.Uniform(), rng.Uniform() };
-                                                   lightDir = lightDir * 2.0f - 1.0f;
-                                               } while (lightDir.Length() > 1.0f);
-                                               if (lightDir.y < 0) lightDir.y = -lightDir.y;
-
-                                           }
-                                           ray.direction = frame.GetWorldFromLocal(lightDir);
-                                       } else break;
-                                   }
-
-                                   film.AddSample(x, y, color);
-                               }
-
-//                               if (result.has_value())
-//                               {
-//                                   Vec3f hitPos = result->hitPos;
-//                                   Vec3f normal = result->normal;
-//                                   Vec3f lightDir = Normalize(lightPos - hitPos);
-//                                   float cosine = std::max(0.0f, Dot(normal, lightDir));
-//
-//                               }
-                               progress.Update(1);
-                           }
-    );
-
-    threadPool.Wait();
-    film.Save("test.ppm");
+    SimpleRTRenderer simpleRenderer { camera, scene };
+    simpleRenderer.Render(8, "SimpleRT.ppm");
 
     return 0;
 }
