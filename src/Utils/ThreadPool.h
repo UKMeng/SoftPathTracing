@@ -29,7 +29,7 @@ public:
 
     void Wait() const;
 
-    void ParallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)>& lambda);
+    void ParallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)>& lambda, bool complex = true);
 
     void AddTask(Task* task);
     Task* GetTask();

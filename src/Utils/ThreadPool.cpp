@@ -64,6 +64,7 @@ void ThreadPool::Worker(ThreadPool *master)
         if (task != nullptr)
         {
             task->Run();
+            delete task;
             master->m_PendingTaskCount--;
         }
         else
@@ -84,27 +85,52 @@ void ThreadPool::Wait() const
 class ParallelForTask: public Task
 {
 public:
-    ParallelForTask(size_t x, size_t y, const std::function<void(size_t, size_t)> &lambda): x(x), y(y), lambda(lambda) {}
+    ParallelForTask(size_t x, size_t y, size_t chunkWidth, size_t chunkHeight, const std::function<void(size_t, size_t)> &lambda)
+        : x(x), y(y), chunkWidth(chunkWidth), chunkHeight(chunkHeight), lambda(lambda) {}
 
     void Run() override
     {
-        lambda(x, y);
+        for (size_t i = 0; i < chunkWidth; i++)
+        {
+            for (size_t j = 0; j < chunkHeight; j++)
+            {
+                lambda(x + i, y + j);
+            }
+        }
     }
+
 private:
-    size_t x, y;
+    size_t x, y, chunkWidth, chunkHeight;
     std::function<void(size_t, size_t)> lambda;
 };
 
-void ThreadPool::ParallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)> &lambda)
+void ThreadPool::ParallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)> &lambda, bool complex)
 {
     Guard guard(m_SpinLock);
 
-    for (size_t x = 0; x < width; x++)
+    size_t chunkWidth;
+    size_t chunkHeight;
+
+    if (complex)
     {
-        for (size_t y = 0; y < height; y++)
+        // if lambda is a complex task, divide the task into smaller chunks
+        chunkWidth = std::ceil(static_cast<float>(width) / std::sqrt(16) / std::sqrt(m_Threads.size()));
+        chunkHeight = std::ceil(static_cast<float>(height) / std::sqrt(16) / std::sqrt(m_Threads.size()));
+    }
+    else
+    {
+        chunkWidth = std::ceil(static_cast<float>(height) / std::sqrt(m_Threads.size()));
+        chunkHeight = std::ceil(static_cast<float>(width) / std::sqrt(m_Threads.size()));
+    }
+
+    for (size_t x = 0; x < width; x += chunkWidth)
+    {
+        for (size_t y = 0; y < height; y += chunkHeight)
         {
             m_PendingTaskCount++;
-            m_TaskList.push(new ParallelForTask(x, y, lambda));
+            if (x + chunkWidth > width) chunkWidth = width - x;
+            if (y + chunkHeight > height) chunkHeight = height - y;
+            m_TaskList.push(new ParallelForTask(x, y, chunkWidth, chunkHeight, lambda));
         }
     }
 }
