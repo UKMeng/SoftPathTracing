@@ -9,8 +9,6 @@
 #undef M_PI
 #define M_PI 3.141592653589793f
 
-#include <random>
-
 inline float Clamp(const float& val, const float& minVal, const float& maxVal)
 {
     return std::max(minVal, std::min(maxVal, val));
@@ -47,15 +45,6 @@ inline float Q_rsqrt(float number)
     // y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 
     return y;
-}
-
-inline float GetRandomFloat()
-{
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_real_distribution<float> dist(-1.f, 1.f);
-
-    return dist(rng);
 }
 
 template<typename T>

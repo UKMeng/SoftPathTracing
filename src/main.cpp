@@ -10,6 +10,7 @@
 #include "Scene.h"
 #include "Frame.h"
 #include "ColorRGB.h"
+#include "RNG.h"
 
 int main()
 {
@@ -55,14 +56,16 @@ int main()
 
     scene.AddObject(plane, {ColorRGB(120, 204, 157)}, { 0, -0.5, 0});
 
-    int spp = 8;
+    RNG rng; // Random Number Generator ( Uniform Distribution [0, 1) )
+
+    int spp = 32;
 
     threadPool.ParallelFor(film.GetWidth(), film.GetHeight(),
                            [&](size_t x, size_t y)
                            {
                                for (int i = 0; i < spp; ++i)
                                {
-                                   auto ray = camera.GenerateRay(Vec2i(x, y), { Abs(GetRandomFloat()), Abs(GetRandomFloat()) });
+                                   auto ray = camera.GenerateRay(Vec2i(x, y), { rng.Uniform(), rng.Uniform() });
 
                                    Vec3f beta = {1, 1, 1}; // total albedo
                                    Vec3f color = {0, 0, 0};
@@ -91,7 +94,8 @@ int main()
                                                // Acceptance-Rejection Sampling
                                                do
                                                {
-                                                   lightDir = {GetRandomFloat(), GetRandomFloat(), GetRandomFloat()};
+                                                   lightDir = { rng.Uniform(), rng.Uniform(), rng.Uniform() };
+                                                   lightDir = lightDir * 2.0f - 1.0f;
                                                } while (lightDir.Length() > 1.0f);
                                                if (lightDir.y < 0) lightDir.y = -lightDir.y;
 
