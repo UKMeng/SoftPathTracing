@@ -7,7 +7,7 @@
 Frame::Frame(const Vec3f &normal)
 {
     yAxis = normal;
-    Vec3f up = Abs(normal.y) < 0.999f ? Vec3f(0.0f, 1.0f, 0.0f) : Vec3f(1.0f, 0.0f, 0.0f); // in case normal is parallel to y-axis
+    Vec3f up = Abs(normal.y) < 0.999f ? Vec3f(0.0f, 1.0f, 0.0f) : Vec3f(0.0f, 0.0f, 1.0f); // in case normal is parallel to y-axis
     xAxis = Normalize(Cross(up, yAxis));
     zAxis = Normalize(Cross(xAxis, yAxis));
 }

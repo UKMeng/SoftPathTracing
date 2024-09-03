@@ -34,27 +34,24 @@ int main()
 
     Scene scene {};
 
-    scene.AddObject(model, {}, {0, 0, 0}, {0, 45, 0}, {1, 3, 2});
+    scene.AddObject(model, {}, {0, 0, 0}, {0, 0, 0}, {1, 3, 2});
     scene.AddObject(
             sphere,
-            {{1, 1, 1}, false, Vec3f(ColorRGB(255, 128, 128))},
-            {0, 0.0, 2.5},
-            {0, 0, 0},
-            {1.0, 1.0, 1.0});
+            {{1, 1, 1}, false, ColorRGB(255, 128, 128)},
+            {0, 0.0, 2.5}
+            );
 
     scene.AddObject(
             sphere,
             {{1, 1, 1}, false, ColorRGB(128, 128, 255)},
-            {0, 0.0, -2.5},
-            {0, 0, 0},
-            {1.0, 1.0, 1.0});
+            {0, 0.0, -2.5}
+            );
 
     scene.AddObject(
             sphere,
             {{1, 1, 1}, true },
-            {3, 0.5, -2},
-            {0, 0, 0},
-            {1.0, 1.0, 1.0});
+            {3, 0.5, -2}
+            );
 
     scene.AddObject(plane, {}, { 0, -0.5, 0});
 
@@ -78,6 +75,7 @@ int main()
 
                                        Frame frame(result->normal);
                                        Vec3f lightDir;
+
                                        if (result->material->isSpecular)
                                        {
                                            // specular
@@ -92,6 +90,7 @@ int main()
                                            {
                                                lightDir = { GetRandomFloat(), GetRandomFloat(), GetRandomFloat() };
                                            } while (lightDir.Length() > 1.0f);
+                                           if (lightDir.y < 0) lightDir.y = -lightDir.y;
 
                                        }
                                        ray.direction = frame.GetWorldFromLocal(lightDir);

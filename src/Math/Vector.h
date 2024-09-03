@@ -68,7 +68,8 @@ public:
 
     Vec3f Normalize() const
     {
-        float rootInv = Q_rsqrt(x * x + y * y + z * z);
+        // float rootInv = Q_rsqrt(x * x + y * y + z * z);
+        float rootInv = 1 / Length();
         return Vec3f(x * rootInv, y * rootInv, z * rootInv);
     }
 
@@ -84,7 +85,7 @@ public:
 
     float Length() const
     {
-        return Q_rsqrt(x * x + y * y + z * z);
+        return std::sqrt(x * x + y * y + z * z);
     }
 
     static Vec3f Min(const Vec3f& a, const Vec3f& b);

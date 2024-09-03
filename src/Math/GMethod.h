@@ -53,7 +53,7 @@ inline float GetRandomFloat()
 {
     std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_real_distribution<float> dist(0.f, 1.f);
+    std::uniform_real_distribution<float> dist(-1.f, 1.f);
 
     return dist(rng);
 }
