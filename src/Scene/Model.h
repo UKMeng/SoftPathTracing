@@ -8,6 +8,7 @@
 #include <rapidobj/rapidobj.hpp>
 
 #include "Triangle.h"
+#include "BVH.h"
 
 
 class Model: public Object
@@ -21,6 +22,6 @@ public:
     virtual std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const override;
 
     virtual AABB GetAABB() override;
-
-
+private:
+    std::unique_ptr<BVH> bvh;
 };

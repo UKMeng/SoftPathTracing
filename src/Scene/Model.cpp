@@ -15,6 +15,8 @@ Model::Model(const std::filesystem::path &filename)
                          -std::numeric_limits<float>::infinity(),
                          -std::numeric_limits<float>::infinity()};
 
+    std::vector<Object*> objs;
+
     for (const auto &shape: result.shapes)
     {
         size_t indexOffset = 0;
@@ -47,38 +49,41 @@ Model::Model(const std::filesystem::path &filename)
                         result.attributes.normals[index.normal_index * 3 + 1],
                         result.attributes.normals[index.normal_index * 3 + 2]
                     };
-                    triangles.emplace_back(v0, v1, v2, normal);
+                    Object* tri = new Triangle(v0, v1, v2, normal);
+                    objs.emplace_back(tri);
+                    //triangles.emplace_back(v0, v1, v2, normal);
                 }
                 else
                 {
-                    triangles.emplace_back(v0, v1, v2);
+                    Object* tri = new Triangle(v0, v1, v2);
+                    objs.emplace_back(tri);
+                    // triangles.emplace_back(v0, v1, v2);
                 }
             }
             indexOffset += numFaceVertices;
         }
     }
 
-
-    boundingBox = AABB(minVert, maxVert);
+    bvh = std::make_unique<BVH>(objs);
+    // boundingBox = AABB(minVert, maxVert);
 }
 
 std::optional<HitInfo> Model::Intersect(const Ray &ray, float tMin, float tMax) const
 {
-    // TODO: use AABB and BVH to test intersection
-    std::optional<HitInfo> closetHitInfo {};
-    for (const auto& triangle : triangles)
-    {
-        auto hitInfo = triangle.Intersect(ray, tMin, tMax);
-        if (hitInfo.has_value())
-        {
-            tMax = hitInfo->t;
-            closetHitInfo = hitInfo;
-        }
-    }
+    std::optional<HitInfo> closetHitInfo = bvh->Intersect(ray, tMin, tMax);
+//    for (const auto& triangle : triangles)
+//    {
+//        auto hitInfo = triangle.Intersect(ray, tMin, tMax);
+//        if (hitInfo.has_value())
+//        {
+//            tMax = hitInfo->t;
+//            closetHitInfo = hitInfo;
+//        }
+//    }
     return closetHitInfo;
 }
 
 AABB Model::GetAABB()
 {
-    return boundingBox;
+    return bvh->root->boundingBox;
 }

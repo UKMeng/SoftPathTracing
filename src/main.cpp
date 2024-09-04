@@ -57,7 +57,7 @@ int main()
     film.Clear();
 
     SimpleRTRenderer simpleRenderer { camera, scene };
-    simpleRenderer.Render(8, "SimpleRT.ppm");
+    simpleRenderer.Render(128, "SimpleRT.ppm");
 
     return 0;
 }

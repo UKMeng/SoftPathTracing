@@ -9,9 +9,14 @@
 
 struct Ray
 {
-    Vec3f origin, direction;
+    Vec3f origin, direction, directionInv;
+    std::array<int, 3> dirIsNeg;
 
-    Ray(Vec3f ori, Vec3f dir): origin(ori), direction(dir) {};
+    Ray(Vec3f ori, Vec3f dir): origin(ori), direction(dir)
+    {
+        directionInv = Vec3f(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z);
+        dirIsNeg = {direction.x < 0, direction.y < 0, direction.z < 0};
+    };
 
     Vec3f HitPos(float t) const { return origin + t * direction; }
 
