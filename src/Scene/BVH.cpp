@@ -5,10 +5,12 @@
 #include <algorithm>
 
 #include "BVH.h"
+#include "Profile.h"
 
 BVH::BVH(std::vector<Object *> &objects, int maxPrimsInNode, BVH::SplitMethod splitMethod)
     : m_Primitives(std::move(objects)), m_MaxPrimsInNode(maxPrimsInNode), m_SplitMethod(splitMethod)
 {
+    Profile profile("Build BVH");
     if (m_Primitives.empty()) return;
     root = Build(m_Primitives, 1);
 
