@@ -66,6 +66,16 @@ public:
         return *this;
     }
 
+    float operator[](int index) const
+    {
+        return index == 0 ? x : index == 1 ? y : z;
+    }
+
+    float& operator[](int index)
+    {
+        return index == 0 ? x : index == 1 ? y : z;
+    }
+
     Vec3f Normalize() const
     {
         // float rootInv = Q_rsqrt(x * x + y * y + z * z);

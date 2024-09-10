@@ -5,9 +5,12 @@
 #include "Renderer.h"
 #include "ThreadPool.h"
 #include "ProgressBar.h"
+#include "Profile.h"
 
 void Renderer::Render(size_t spp, const std::filesystem::path &fileName)
 {
+    Profile profile("Render");
+
     size_t currentSpp = 0, increase = 1;
     auto& film = camera.GetFilm();
     ProgressBar progress { film.GetWidth() * film.GetHeight() * spp };

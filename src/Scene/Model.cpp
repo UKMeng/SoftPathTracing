@@ -8,13 +8,6 @@ Model::Model(const std::filesystem::path &filename)
 {
     auto result = rapidobj::ParseFile(filename, rapidobj::MaterialLibrary::Ignore());
 
-    Vec3f minVert = Vec3f{std::numeric_limits<float>::infinity(),
-                         std::numeric_limits<float>::infinity(),
-                         std::numeric_limits<float>::infinity()};
-    Vec3f maxVert = Vec3f{-std::numeric_limits<float>::infinity(),
-                         -std::numeric_limits<float>::infinity(),
-                         -std::numeric_limits<float>::infinity()};
-
     std::vector<Object*> objs;
 
     for (const auto &shape: result.shapes)
@@ -64,8 +57,7 @@ Model::Model(const std::filesystem::path &filename)
         }
     }
 
-    bvh = std::make_unique<BVH>(objs);
-    // boundingBox = AABB(minVert, maxVert);
+    bvh = std::make_unique<BVH>(objs, 1, BVH::SplitMethod::SAH);
 }
 
 std::optional<HitInfo> Model::Intersect(const Ray &ray, float tMin, float tMax) const

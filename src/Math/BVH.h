@@ -16,9 +16,6 @@ struct BVHNode
     BVHNode* right;
     std::vector<Object*> objects;
     int depth;
-//    float area;
-//
-//    int splitAxis = 0, firstPrimOffset = 0, nPrimitives = 0;
 
     BVHNode()
     {
@@ -46,10 +43,11 @@ public:
     BVHNode* root;
 private:
     BVHNode* Build(std::vector<Object*> objects, int depth);
+    BVHNode* SAHBuild(std::vector<Object*> objects, int depth);
     void RecursiveIntersection(BVHNode* node, const Ray& ray, float tMin, float& tMax, std::optional<HitInfo>& closetHitInfo) const;
 private:
     const int m_MaxPrimsInNode;
     const SplitMethod m_SplitMethod;
     std::vector<Object*> m_Primitives;
-    int m_MaxDepth;
+    int m_MaxDepth = 0;
 };

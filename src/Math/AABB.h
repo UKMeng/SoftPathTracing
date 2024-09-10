@@ -29,12 +29,20 @@ public:
 
     inline Vec3f Centroid() const { return 0.5 * pMin + 0.5 * pMax;}
 
+    inline Vec3f Diagonal() const { return pMax - pMin;}
+
     inline int MaxExtentDimension() const
     {
-        Vec3f diagonal = pMax - pMin;
+        Vec3f diagonal = Diagonal();
         if (diagonal.x > diagonal.y && diagonal.x > diagonal.z) return 0;
         else if (diagonal.y > diagonal.z) return 1;
         else return 2;
+    }
+
+    inline float SurfaceArea() const
+    {
+        Vec3f d = Diagonal();
+        return 2 * (d.x * d.y + d.x * d.z + d.y * d.z);
     }
 
     inline AABB Union(const AABB& b)
@@ -53,4 +61,9 @@ public:
         return ret;
     }
 
+    static bool Inside(const Vec3f& p, const AABB& b)
+    {
+        return (p.x >= b.pMin.x && p.x <= b.pMax.x && p.y >= b.pMin.y &&
+                p.y <= b.pMax.y && p.z >= b.pMin.z && p.z <= b.pMax.z);
+    }
 };
