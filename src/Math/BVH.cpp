@@ -32,9 +32,17 @@ BVHNode *BVH::Build(std::vector<Object *> objects, int depth)
     node->depth = depth;
     m_MaxDepth = std::max(m_MaxDepth, depth);
 
-    if (objects.size() == m_MaxPrimsInNode)
+    AABB boundingBox {}; // bounding box for all objects
+    AABB centroidBoundingBox {};
+    for (auto &object : objects)
     {
-        node->boundingBox = objects[0]->GetAABB();
+        boundingBox = boundingBox.Union(object->GetAABB());
+        centroidBoundingBox = centroidBoundingBox.Union(object->GetAABB().Centroid());
+    }
+
+    if (objects.size() <= m_MaxPrimsInNode)
+    {
+        node->boundingBox = boundingBox;
         node->left = nullptr;
         node->right = nullptr;
         node->objects = std::move(objects);
@@ -42,14 +50,6 @@ BVHNode *BVH::Build(std::vector<Object *> objects, int depth)
     }
     else
     {
-        AABB boundingBox {}; // bounding box for all objects
-        AABB centroidBoundingBox {};
-        for (auto &object : objects)
-        {
-            boundingBox = boundingBox.Union(object->GetAABB());
-            centroidBoundingBox = centroidBoundingBox.Union(object->GetAABB().Centroid());
-        }
-
         // sort objects by max extent dimension
         int dim = centroidBoundingBox.MaxExtentDimension();
         switch (dim)
@@ -102,12 +102,14 @@ BVHNode *BVH::SAHBuild(std::vector<Object *> objects, int depth)
     };
 
     AABB boundingBox {}; // bounding box for all objects
+    AABB centroidBoundingBox {};
     for (auto &object : objects)
     {
         boundingBox = boundingBox.Union(object->GetAABB());
+        centroidBoundingBox = centroidBoundingBox.Union(object->GetAABB().Centroid());
     }
 
-    if (objects.size() == m_MaxPrimsInNode)
+    if (objects.size() <= m_MaxPrimsInNode)
     {
         node->boundingBox = boundingBox;
         node->left = nullptr;
@@ -120,14 +122,6 @@ BVHNode *BVH::SAHBuild(std::vector<Object *> objects, int depth)
         int bucketNum = std::min<int>(objects.size(), 16);
         int middle = 0;
         float bestCost = FLT_MAX;
-
-        AABB boundingBox {}; // bounding box for all objects
-        AABB centroidBoundingBox {};
-        for (auto &object : objects)
-        {
-            boundingBox = boundingBox.Union(object->GetAABB());
-            centroidBoundingBox = centroidBoundingBox.Union(object->GetAABB().Centroid());
-        }
 
         // init buckets
         std::vector<std::vector<Bucket>> totalBuckets(3, std::vector<Bucket>(bucketNum));
