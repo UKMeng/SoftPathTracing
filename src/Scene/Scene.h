@@ -6,27 +6,29 @@
 #include <vector>
 #include "Object.h"
 #include "Material.h"
-
-struct ObjectInstance
-{
-    const Object& object;
-    Material material;
-    Mat4f modelMatrix;
-    Mat4f invModelMatrix;
-};
-
+#include "SceneBVH.h"
 
 class Scene: public Object
 {
 public:
     virtual std::optional<HitInfo> Intersect(const Ray &ray, float tMin = 1e-5, float tMax = std::numeric_limits<float>::infinity()) const override;
-    virtual AABB GetAABB() override;
 
     void AddObject(const Object& object,
                    const Material& material = {},
                    const Vec3f& translate = {0.f, 0.f, 0.f},
                    const Vec3f& rotate = {0.f, 0.f, 0.f},
                    const Vec3f& scale = {1.f, 1.f, 1.f});
+
+    void BuildBVH()
+    {
+        bvh = std::make_unique<SceneBVH>(m_ObjectList, 1, SceneBVH::SplitMethod::NAIVE);
+    }
+
+    virtual AABB GetAABB() const override
+    {
+        return bvh->root->boundingBox;
+    }
 private:
-    std::vector<ObjectInstance> m_ObjectList;
+    std::vector<ObjectInstance*> m_ObjectList;
+    std::unique_ptr<SceneBVH> bvh;
 };

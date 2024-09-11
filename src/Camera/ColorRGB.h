@@ -76,7 +76,7 @@ public:
 
         if (t < 0.0f || t >= 1.0f) return ColorRGB(255, 0, 0);
 
-        float index = t * colorPallet.size();
+        float index = t * (colorPallet.size() - 1);
         int i = static_cast<int>(index);
         return ColorLerp(colorPallet[i], colorPallet[i + 1], index - i);
     }

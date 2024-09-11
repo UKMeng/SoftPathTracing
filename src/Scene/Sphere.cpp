@@ -29,7 +29,7 @@ std::optional<HitInfo> Sphere::Intersect(const Ray& ray, float tMin, float tMax)
     return {};
 }
 
-AABB Sphere::GetAABB()
+AABB Sphere::GetAABB() const
 {
     return AABB(Vec3f {center.x - radius, center.y - radius, center.z - radius},
                 Vec3f {center.x + radius, center.y + radius, center.z + radius});

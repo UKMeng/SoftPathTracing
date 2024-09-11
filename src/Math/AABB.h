@@ -25,6 +25,19 @@ public:
         pMax = Vec3f(std::max(p1.x, p2.x), std::max(p1.y, p2.y), std::max(p1.z, p2.z));
     }
 
+    AABB Transform(const Mat4f& m) const;
+
+    bool IsVaild() const { return pMax.x > pMin.x && pMax.y > pMin.y && pMax.z > pMin.z; }
+
+    inline Vec3f GetCornerPoint(int index) const
+    {
+        return Vec3f(
+                (index & 1) ? pMax.x : pMin.x,
+                (index & 2) ? pMax.y : pMin.y,
+                (index & 4) ? pMax.z : pMin.z
+        );
+    }
+
     bool HasIntersect(const Ray& ray, float tMin, float tMax) const;
 
     inline Vec3f Centroid() const { return 0.5 * pMin + 0.5 * pMax;}

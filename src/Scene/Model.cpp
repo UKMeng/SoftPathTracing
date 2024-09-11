@@ -57,7 +57,7 @@ Model::Model(const std::filesystem::path &filename)
         }
     }
 
-    bvh = std::make_unique<BVH>(objs, 16, BVH::SplitMethod::NAIVE);
+    bvh = std::make_unique<BVH>(objs, 1, BVH::SplitMethod::NAIVE);
 }
 
 std::optional<HitInfo> Model::Intersect(const Ray &ray, float tMin, float tMax) const
@@ -75,7 +75,7 @@ std::optional<HitInfo> Model::Intersect(const Ray &ray, float tMin, float tMax) 
     return closetHitInfo;
 }
 
-AABB Model::GetAABB()
+AABB Model::GetAABB() const
 {
     return bvh->root->boundingBox;
 }

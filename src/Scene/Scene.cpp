@@ -3,21 +3,26 @@
 //
 
 #include "Scene.h"
+#include "DebugMacro.h"
 
 std::optional<HitInfo> Scene::Intersect(const Ray &ray, float tMin, float tMax) const
 {
+    //return bvh->Intersect(ray, tMin, tMax);
+
     std::optional<HitInfo> closestHitInfo = {};
     const ObjectInstance* closestInstance = nullptr;
 
     for (const auto& objectInstance: m_ObjectList)
     {
-        Ray rayInModelSpace = ray.RayFromWorldToModel(objectInstance.invModelMatrix);
-        auto hitInfo = objectInstance.object.Intersect(rayInModelSpace, tMin, tMax);
+        Ray rayInModelSpace = ray.RayFromWorldToModel(objectInstance->invModelMatrix);
+        auto hitInfo = objectInstance->object.Intersect(rayInModelSpace, tMin, tMax);
+        DEBUG_LINE(ray.boundsTestCount += rayInModelSpace.boundsTestCount);
+        DEBUG_LINE(ray.triangleTestCount += rayInModelSpace.triangleTestCount);
         if (hitInfo.has_value())
         {
             closestHitInfo = hitInfo;
             tMax = hitInfo->t;
-            closestInstance = &objectInstance;
+            closestInstance = objectInstance;
         }
     }
 
@@ -36,10 +41,5 @@ void Scene::AddObject(const Object& object, const Material& material, const Vec3
     // Model Matrix - from model space to world space
     Mat4f modelMatrix = Mat4f::Translate(translate) * Mat4f::Rotate(rotate) * Mat4f::Scale(scale);
     Mat4f invModelMatrix = modelMatrix.Inverse();
-    m_ObjectList.emplace_back(object, material, modelMatrix, invModelMatrix);
-}
-
-AABB Scene::GetAABB()
-{
-    return AABB();
+    m_ObjectList.emplace_back(new ObjectInstance(object, material, modelMatrix, invModelMatrix));
 }

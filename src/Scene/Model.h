@@ -21,7 +21,7 @@ public:
 
     virtual std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const override;
 
-    virtual AABB GetAABB() override;
+    virtual AABB GetAABB() const override;
 private:
     std::unique_ptr<BVH> bvh;
 };

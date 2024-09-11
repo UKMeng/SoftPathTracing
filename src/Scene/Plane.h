@@ -8,11 +8,17 @@
 class Plane : public Object
 {
 public:
-    Vec3f point, normal;
+    Vec3f centroid, normal;
+    Vec2f size;
+    AABB boundingBox;
 
-    Plane(const Vec3f& point, const Vec3f& normal) : point(point), normal(Normalize(normal)) {}
+    // Plane(const Vec3f& centroid, const Vec3f& normal) : centroid(centroid), normal(normal) {}
+    Plane(const Vec3f& centroid, const Vec2f& size, const Vec3f& normal);
 
     virtual std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const override;
 
-    virtual AABB GetAABB() override;
+    virtual AABB GetAABB() const override
+    {
+        return boundingBox;
+    }
 };

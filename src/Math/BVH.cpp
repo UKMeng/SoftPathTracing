@@ -238,11 +238,8 @@ std::optional<HitInfo> BVH::Intersect(const Ray &ray, float tMin, float tMax) co
 
     RecursiveIntersection(root, ray, tMin, tMax, closetHitInfo);
 
-    if (closetHitInfo.has_value())
-    {
-        DEBUG_LINE(closetHitInfo->boundsTestCount = m_BoundsTestCount)
-        DEBUG_LINE(closetHitInfo->triangleTestCount = m_TriangleTestCount)
-    }
+    DEBUG_LINE(ray.boundsTestCount += m_BoundsTestCount)
+    DEBUG_LINE(ray.triangleTestCount += m_TriangleTestCount)
 
     return closetHitInfo;
 }

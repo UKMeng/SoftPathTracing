@@ -26,5 +26,18 @@ bool AABB::HasIntersect(const Ray &ray, float tMin, float tMax) const
     tEnter = std::max(tEnter, tMin);
     tExit = std::min(tExit, tMax);
 
-    return (tEnter <= tExit) && (tExit >= 0);
+    return (tEnter <= tExit) && (tExit >= 0.0);
+}
+
+AABB AABB::Transform(const Mat4f &m) const
+{
+    Vec3f worldMin = Vec3f(std::numeric_limits<float>::max());
+    Vec3f worldMax = Vec3f(-std::numeric_limits<float>::max());
+    for (int i = 0; i < 7; i++)
+    {
+        Vec3f corner = m * Vec4f(GetCornerPoint(i), 1.0f);
+        worldMin = Vec3f::Min(worldMin, corner);
+        worldMax = Vec3f::Max(worldMax, corner);
+    }
+    return AABB(worldMin, worldMax);
 }

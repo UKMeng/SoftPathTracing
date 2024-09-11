@@ -30,7 +30,7 @@ std::optional<HitInfo> Triangle::Intersect(const Ray &ray, float tMin, float tMa
     return {};
 }
 
-AABB Triangle::GetAABB()
+AABB Triangle::GetAABB() const
 {
     return AABB(v0, v1).Union(v2);
 }

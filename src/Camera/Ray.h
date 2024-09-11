@@ -12,6 +12,11 @@ struct Ray
     Vec3f origin, direction, directionInv;
     std::array<int, 3> dirIsNeg;
 
+#ifdef DEBUG
+    mutable size_t boundsTestCount = 0;
+    mutable size_t triangleTestCount = 0;
+#endif
+
     Ray(Vec3f ori, Vec3f dir): origin(ori), direction(dir)
     {
         directionInv = Vec3f(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z);
@@ -29,9 +34,4 @@ struct HitInfo
     Vec3f hitPos;
     Vec3f normal;
     const Material* material = nullptr;
-
-#ifdef DEBUG
-    size_t boundsTestCount = 0;
-    size_t triangleTestCount = 0;
-#endif
 };
