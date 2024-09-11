@@ -14,6 +14,11 @@ inline float Clamp(const float& val, const float& minVal, const float& maxVal)
     return std::max(minVal, std::min(maxVal, val));
 }
 
+inline float Lerp(const float& val1, const float& val2, const float& t)
+{
+    return val1 + (val2 - val1) * t;
+}
+
 inline float Radians(const float& degree)
 {
     return degree * M_PI / 180.0f;

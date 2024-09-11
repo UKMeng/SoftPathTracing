@@ -6,6 +6,7 @@
 
 #include "BVH.h"
 #include "Profile.h"
+#include "DebugMacro.h"
 
 BVH::BVH(std::vector<Object *> &objects, int maxPrimsInNode, BVH::SplitMethod splitMethod)
     : m_Primitives(std::move(objects)), m_MaxPrimsInNode(maxPrimsInNode), m_SplitMethod(splitMethod)
@@ -230,13 +231,25 @@ BVHNode *BVH::SAHBuild(std::vector<Object *> objects, int depth)
 std::optional<HitInfo> BVH::Intersect(const Ray &ray, float tMin, float tMax) const
 {
     std::optional<HitInfo> closetHitInfo {};
+
+    DEBUG_LINE(m_BoundsTestCount = 0, m_TriangleTestCount = 0)
+
     RecursiveIntersection(root, ray, tMin, tMax, closetHitInfo);
+
+    if (closetHitInfo.has_value())
+    {
+        DEBUG_LINE(closetHitInfo->boundsTestCount = m_BoundsTestCount)
+        DEBUG_LINE(closetHitInfo->triangleTestCount = m_TriangleTestCount)
+    }
+
     return closetHitInfo;
 }
 
 void BVH::RecursiveIntersection(BVHNode *node, const Ray &ray, float tMin, float& tMax,
                                 std::optional<HitInfo> &closetHitInfo) const
 {
+    DEBUG_LINE(m_BoundsTestCount++)
+
     if (!node->boundingBox.HasIntersect(ray, tMin, tMax)) return;
 
     if (node->objects.empty())
@@ -246,6 +259,7 @@ void BVH::RecursiveIntersection(BVHNode *node, const Ray &ray, float tMin, float
     }
     else
     {
+        DEBUG_LINE(m_TriangleTestCount += node->objects.size())
         for (auto &object: node->objects)
         {
             auto hitInfo = object->Intersect(ray, tMin, tMax);

@@ -50,4 +50,9 @@ private:
     const SplitMethod m_SplitMethod;
     std::vector<Object*> m_Primitives;
     int m_MaxDepth = 0;
+
+#ifdef DEBUG
+    mutable size_t m_BoundsTestCount;
+    mutable size_t m_TriangleTestCount;
+#endif
 };

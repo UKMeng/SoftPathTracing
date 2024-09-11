@@ -13,6 +13,7 @@ void Renderer::Render(size_t spp, const std::filesystem::path &fileName)
 
     size_t currentSpp = 0, increase = 1;
     auto& film = camera.GetFilm();
+    film.Clear();
     ProgressBar progress { film.GetWidth() * film.GetHeight() * spp };
     while (currentSpp < spp)
     {

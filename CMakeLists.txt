@@ -12,3 +12,5 @@ add_executable(SoftPathTracing ${source})
 target_include_directories(SoftPathTracing PUBLIC src/Math src/Utils src/Scene src/Camera src/Renderer)
 
 target_link_libraries(SoftPathTracing rapidobj)
+
+target_compile_definitions(SoftPathTracing PUBLIC DEBUG)

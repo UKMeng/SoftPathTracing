@@ -29,4 +29,9 @@ struct HitInfo
     Vec3f hitPos;
     Vec3f normal;
     const Material* material = nullptr;
+
+#ifdef DEBUG
+    size_t boundsTestCount = 0;
+    size_t triangleTestCount = 0;
+#endif
 };
