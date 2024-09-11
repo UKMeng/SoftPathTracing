@@ -53,6 +53,7 @@ BVHNode *BVH::Build(std::vector<Object *> objects, int depth)
     {
         // sort objects by max extent dimension
         int dim = centroidBoundingBox.MaxExtentDimension();
+        node->splitAxis = dim;
         switch (dim)
         {
             case 0:
@@ -211,6 +212,7 @@ BVHNode *BVH::SAHBuild(std::vector<Object *> objects, int depth)
                 {
                     bestCost = cost;
                     middle = leftObjectNum;
+                    node->splitAxis = axis;
                 }
             }
         }
@@ -254,8 +256,17 @@ void BVH::RecursiveIntersection(BVHNode *node, const Ray &ray, float tMin, float
 
     if (node->objects.empty())
     {
-        RecursiveIntersection(node->left, ray, tMin, tMax, closetHitInfo);
-        RecursiveIntersection(node->right, ray, tMin, tMax, closetHitInfo);
+        int splitAxis = node->splitAxis;
+        if (ray.direction[splitAxis] > 0)
+        {
+            RecursiveIntersection(node->left, ray, tMin, tMax, closetHitInfo);
+            RecursiveIntersection(node->right, ray, tMin, tMax, closetHitInfo);
+        }
+        else
+        {
+            RecursiveIntersection(node->right, ray, tMin, tMax, closetHitInfo);
+            RecursiveIntersection(node->left, ray, tMin, tMax, closetHitInfo);
+        }
     }
     else
     {

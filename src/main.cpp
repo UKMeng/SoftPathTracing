@@ -21,7 +21,7 @@ int main()
 
     Film film { width, height };
 
-    Camera camera { film, { 3.6, 0.0, 0 }, { 0, 0, 0 }, 45};
+    Camera camera { film, { -3.6, 0.0, 0 }, { 0, 0, 0 }, 45};
 
     Sphere sphere { {0, 0, 0}, 1.0f};
 
@@ -31,26 +31,26 @@ int main()
 
     Scene scene {};
 
-    scene.AddObject(model, {ColorRGB(202,159,117)}, {0, 0, 0}, {0, 0, 0}, {3, 3, 3});
-//    scene.AddObject(
-//            sphere,
-//            {{1, 1, 1}, false, ColorRGB(255, 128, 128)},
-//            {0, 0.0, 2.5}
-//            );
-//
-//    scene.AddObject(
-//            sphere,
-//            {{1, 1, 1}, false, ColorRGB(128, 128, 255)},
-//            {0, 0.0, -2.5}
-//            );
-//
-//    scene.AddObject(
-//            sphere,
-//            {{1, 1, 1}, true },
-//            {3, 0.5, -2}
-//            );
-//
-//    scene.AddObject(plane, {ColorRGB(120, 204, 157)}, { 0, -0.5, 0});
+    scene.AddObject(model, {ColorRGB(202,159,117)}, {0, 0, 0}, {0, 0, 0}, {1, 3, 2});
+    scene.AddObject(
+            sphere,
+            {{1, 1, 1}, false, ColorRGB(255, 128, 128)},
+            {0, 0.0, 2.5}
+            );
+
+    scene.AddObject(
+            sphere,
+            {{1, 1, 1}, false, ColorRGB(128, 128, 255)},
+            {0, 0.0, -2.5}
+            );
+
+    scene.AddObject(
+            sphere,
+            {{1, 1, 1}, true },
+            {3, 0.5, -2}
+            );
+
+    scene.AddObject(plane, {ColorRGB(120, 204, 157)}, { 0, -0.5, 0});
 
     NormalRenderer normalRenderer { camera, scene };
     normalRenderer.Render(1, "Normal.ppm");
@@ -61,7 +61,7 @@ int main()
     debugTTCRenderer.Render(1, "DebugTTC.ppm");
 
     SimpleRTRenderer simpleRenderer { camera, scene };
-    simpleRenderer.Render(8, "SimpleRT.ppm");
+    simpleRenderer.Render(128, "SimpleRT.ppm");
 
 
 

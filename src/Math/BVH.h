@@ -16,6 +16,7 @@ struct BVHNode
     BVHNode* right;
     std::vector<Object*> objects;
     int depth;
+    int splitAxis;
 
     BVHNode()
     {

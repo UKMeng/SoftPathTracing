@@ -27,7 +27,7 @@ Vec3f DebugTTCRenderer::RenderPixel(const Vec2i &pixelCoords)
     auto result = scene.Intersect(ray);
     if (result.has_value())
     {
-        return ColorRGB::GenerateHeatMapRGB(result->triangleTestCount / 20.f);
+        return ColorRGB::GenerateHeatMapRGB(result->triangleTestCount / 640.f);
     }
     return {};
 #else
