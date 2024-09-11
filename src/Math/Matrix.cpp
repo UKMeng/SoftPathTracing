@@ -80,14 +80,36 @@ Mat4f Mat4f::Scale(Vec3f s)
 
 Mat4f Mat4f::Rotate(Vec3f eularAngle)
 {
-    Vec4f quaternion = eularAngle.EularAngleToQuaternion();
+    // TODO: Quaternion still has problem
+//    Vec4f quaternion = eularAngle.EularAngleToQuaternion();
+//
+//    float a = quaternion.x, b = quaternion.y, c = quaternion.z, d = quaternion.w;
+//
+//    return Mat4f({
+//                  1 - 2 * c * c - 2 * d * d, 2 * b * c - 2 * a * d, 2 * a * c + 2 * b * d, 0,
+//                  2 * b * c + 2 * a * d, 1 - 2 * b * b - 2 * d * d, 2 * c * d - 2 * a * b, 0,
+//                  2 * b * d - 2 * a * c, 2 * a * b + 2 * c * d, 1 - 2 * b * b - 2 * c * c, 0,
+//                  0, 0, 0, 1});
 
-    float a = quaternion.x, b = quaternion.y, c = quaternion.z, d = quaternion.w;
+    // reference: https://pbr-book.org/4ed/Geometry_and_Transformations/Transformations
+    float x = Radians(eularAngle.x), y = Radians(eularAngle.y), z = Radians(eularAngle.z);
 
-    return Mat4f({1, 0, 0, 0,
-                  0, 1 - 2 * c * c - 2 * d * d, 2 * b * c - 2 * a * d, 2 * a * c + 2 * b * d,
-                  0, 2 * b * c + 2 * a * d, 1 - 2 * b * b - 2 * d * d, 2 * c * d - 2 * a * b,
-                  0, 2 * b * d - 2 * a * c, 2 * a * b + 2 * c * d, 1 - 2 * b * b - 2 * c * c});
+    Mat4f rotateX({1, 0, 0, 0,
+                   0, cos(x), -sin(x), 0,
+                   0, sin(x), cos(x), 0,
+                   0, 0, 0, 1});
+
+    Mat4f rotateY({cos(y), 0, sin(y), 0,
+                   0, 1, 0, 0,
+                   -sin(y), 0, cos(y), 0,
+                   0, 0, 0, 1});
+
+    Mat4f rotateZ({cos(z), -sin(z), 0, 0,
+                   sin(z), cos(z), 0, 0,
+                   0, 0, 1, 0,
+                   0, 0, 0, 1});
+
+    return rotateZ * rotateY * rotateX;
 }
 
 

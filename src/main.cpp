@@ -31,7 +31,7 @@ int main()
 
     Scene scene {};
 
-    scene.AddObject(model, {ColorRGB(202,159,117)}, {0, 0, 0}, {0, 0, 0}, {1, 3, 2});
+    scene.AddObject(model, {ColorRGB(202,159,117)}, {0, 0, 0}, {45, 0, 0}, {1, 3, 2});
     scene.AddObject(
             sphere,
             {{1, 1, 1}, false, ColorRGB(255, 128, 128)},
@@ -55,15 +55,13 @@ int main()
     NormalRenderer normalRenderer { camera, scene };
     normalRenderer.Render(1, "Normal.ppm");
 
-    DebugBTCRenderer debugBTCRenderer {camera, scene };
-    debugBTCRenderer.Render(1, "DebugBTC.ppm");
-    DebugTTCRenderer debugTTCRenderer {camera, scene };
-    debugTTCRenderer.Render(1, "DebugTTC.ppm");
-
-    SimpleRTRenderer simpleRenderer { camera, scene };
-    simpleRenderer.Render(128, "SimpleRT.ppm");
-
-
+//    DebugBTCRenderer debugBTCRenderer {camera, scene };
+//    debugBTCRenderer.Render(1, "DebugBTC.ppm");
+//    DebugTTCRenderer debugTTCRenderer {camera, scene };
+//    debugTTCRenderer.Render(1, "DebugTTC.ppm");
+//
+//    SimpleRTRenderer simpleRenderer { camera, scene };
+//    simpleRenderer.Render(128, "SimpleRT.ppm");
 
     return 0;
 }
