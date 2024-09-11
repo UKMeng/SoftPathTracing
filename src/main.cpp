@@ -71,26 +71,26 @@ int main()
 
 
 
-    scene.AddObject(model, {ColorRGB(202,159,117)}, {0, 0, 0}, {0, 0, 0}, {1, 3, 2});
-    scene.AddObject(
-            sphere,
-            {{1, 1, 1}, false, ColorRGB(255, 128, 128)},
-            {0, 0.0, 2.5}
-            );
-
-    scene.AddObject(
-            sphere,
-            {{1, 1, 1}, false, ColorRGB(128, 128, 255)},
-            {0, 0.0, -2.5}
-            );
-
-    scene.AddObject(
-            sphere,
-            {{1, 1, 1}, true },
-            {3, 0.5, -2}
-            );
-
-    scene.AddObject(plane, {ColorRGB(120, 204, 157)}, { 0, -0.5, 0});
+    scene.AddObject(model, {ColorRGB(202,159,117)}, {0, 0, 0}, {0, 0, 0}, {3, 3, 3});
+//    scene.AddObject(
+//            sphere,
+//            {{1, 1, 1}, false, ColorRGB(255, 128, 128)},
+//            {0, 0.0, 2.5}
+//            );
+//
+//    scene.AddObject(
+//            sphere,
+//            {{1, 1, 1}, false, ColorRGB(128, 128, 255)},
+//            {0, 0.0, -2.5}
+//            );
+//
+//    scene.AddObject(
+//            sphere,
+//            {{1, 1, 1}, true },
+//            {3, 0.5, -2}
+//            );
+//
+//    scene.AddObject(plane, {ColorRGB(120, 204, 157)}, { 0, -0.5, 0});
 
     // scene.BuildBVH();
 

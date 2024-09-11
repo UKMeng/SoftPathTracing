@@ -6,9 +6,8 @@
 #include "MyMath.h"
 #include "Ray.h"
 
-class AABB
+struct AABB
 {
-public:
     Vec3f pMin, pMax;
 
     AABB()

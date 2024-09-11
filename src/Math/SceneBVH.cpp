@@ -91,9 +91,9 @@ SceneBVHNode *SceneBVH::Build(std::vector<ObjectInstance*> objects, int depth)
     }
 }
 
-//BVHNode *SceneBVH::SAHBuild(std::vector<ObjectInstance> objects, int depth)
+//BVHTreeNode *SceneBVH::SAHBuild(std::vector<ObjectInstance> objects, int depth)
 //{
-//    BVHNode* node = new BVHNode();
+//    BVHTreeNode* node = new BVHTreeNode();
 //    node->depth = depth;
 //    m_MaxDepth = std::max(m_MaxDepth, depth);
 //

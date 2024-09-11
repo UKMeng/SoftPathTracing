@@ -9,22 +9,34 @@
 #include "AABB.h"
 #include "Object.h"
 
-struct BVHNode
+struct BVHTreeNode
 {
-    AABB boundingBox;
-    BVHNode* left;
-    BVHNode* right;
+    AABB bounds;
+    BVHTreeNode* children[2];
     std::vector<Object*> objects;
     int depth;
     int splitAxis;
 
-    BVHNode()
+    void UpdateBounds()
     {
-        boundingBox = AABB();
-        left = nullptr;
-        right = nullptr;
-        objects = {};
+        bounds = {};
+        for (auto& object: objects)
+        {
+            bounds = bounds.Union(object->GetAABB());
+        }
     }
+};
+
+struct alignas(32) BVHNode
+{
+    AABB bounds;
+    union
+    {
+        int objectIndex;
+        int child1Index; // right child index in the array
+    };
+    uint16_t objectCount;
+    uint8_t splitAxis;
 };
 
 class BVH
@@ -36,24 +48,28 @@ public:
         SAH
     };
 
-    BVH(std::vector<Object*>& objects, int maxPrimsInNode = 1, SplitMethod splitMethod = SplitMethod::NAIVE);
+    BVH(std::vector<Object*> &&objects, int maxPrimsInNode = 1, SplitMethod splitMethod = SplitMethod::NAIVE);
+
+//    BVH(std::vector<Object*>& objects, int maxPrimsInNode = 1, SplitMethod splitMethod = SplitMethod::NAIVE);
 
     std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const;
 
-public:
-    BVHNode* root;
+    AABB GetAABB() const
+    {
+        return m_Nodes[0].bounds;
+    }
+
 private:
-    BVHNode* Build(std::vector<Object*> objects, int depth);
-    BVHNode* SAHBuild(std::vector<Object*> objects, int depth);
-    void RecursiveIntersection(BVHNode* node, const Ray& ray, float tMin, float& tMax, std::optional<HitInfo>& closetHitInfo) const;
+    void Split(BVHTreeNode* node);
+    size_t Flatten(BVHTreeNode* node);
+
+//    BVHTreeNode* Build(std::vector<Object*> objects, int depth);
+//    BVHTreeNode* SAHBuild(std::vector<Object*> objects, int depth);
+//    void RecursiveIntersection(BVHTreeNode* node, const Ray& ray, float tMin, float& tMax, std::optional<HitInfo>& closetHitInfo) const;
 private:
+    std::vector<BVHNode> m_Nodes;
     const int m_MaxPrimsInNode;
     const SplitMethod m_SplitMethod;
-    std::vector<Object*> m_Primitives;
+    std::vector<Object*> m_OrderedPrimitives;
     int m_MaxDepth = 0;
-
-#ifdef DEBUG
-    mutable size_t m_BoundsTestCount;
-    mutable size_t m_TriangleTestCount;
-#endif
 };
