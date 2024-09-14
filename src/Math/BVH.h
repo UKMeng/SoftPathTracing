@@ -39,6 +39,22 @@ struct alignas(32) BVHNode
     uint8_t splitAxis;
 };
 
+struct BVHState
+{
+    size_t totalNodeCount {};
+    size_t leafNodeCount {};
+    size_t maxLeafNodePrimsCount {};
+    size_t maxLeafDepth {};
+
+    void addLeafNode(BVHTreeNode* node)
+    {
+        leafNodeCount++;
+        maxLeafNodePrimsCount = std::max(maxLeafNodePrimsCount, node->objects.size());
+        maxLeafDepth = std::max<size_t>(maxLeafDepth, node->depth);
+    }
+
+};
+
 class BVH
 {
 public:
@@ -60,7 +76,8 @@ public:
     }
 
 private:
-    void Split(BVHTreeNode* node);
+    void Split(BVHTreeNode* node, BVHState& state);
+    void SAHSplit(BVHTreeNode* node, BVHState& state);
     size_t Flatten(BVHTreeNode* node);
 
 //    BVHTreeNode* Build(std::vector<Object*> objects, int depth);

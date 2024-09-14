@@ -7,6 +7,7 @@
 #include "BVH.h"
 #include "Profile.h"
 #include "DebugMacro.h"
+#include "MyMath.h"
 
 BVH::BVH(std::vector<Object *> &&objects, int maxPrimsInNode, SplitMethod splitMethod)
     : m_MaxPrimsInNode(maxPrimsInNode), m_SplitMethod(splitMethod)
@@ -15,24 +16,39 @@ BVH::BVH(std::vector<Object *> &&objects, int maxPrimsInNode, SplitMethod splitM
     BVHTreeNode* root = new BVHTreeNode {};
     root->objects = std::move(objects);
     root->UpdateBounds();
+    root->depth = 1;
 
-    Split(root);
-//    switch (splitMethod)
-//    {
-//        case SplitMethod::NAIVE:
-//            Split(root);
-//            break;
-//        case SplitMethod::SAH:
-//            root = SAHBuild(m_Primitives, 1);
-//            break;
-//    }
+    BVHState bvhState {};
+    size_t totalPrimsCount = root->objects.size();
+
+    switch (splitMethod)
+    {
+        case SplitMethod::NAIVE:
+            Split(root, bvhState);
+            break;
+        case SplitMethod::SAH:
+            SAHSplit(root, bvhState);
+            break;
+    }
+
+    std::cout << "Total node count: " << bvhState.totalNodeCount << std::endl;
+    std::cout << "Leaf node count: " << bvhState.leafNodeCount << std::endl;
+    std::cout << "Total primitives count: " << totalPrimsCount << std::endl;
+    std::cout << "Max leaf node primitives count: " << bvhState.maxLeafNodePrimsCount << std::endl;
+    std::cout << "Mean leaf node primitives count: " << static_cast<float>(totalPrimsCount) / static_cast<float>(bvhState.leafNodeCount) << std::endl;
+    std::cout << "Max leaf depth: " << bvhState.maxLeafDepth << std::endl;
 
     Flatten(root);
 }
 
-void BVH::Split(BVHTreeNode *node)
+void BVH::Split(BVHTreeNode *node, BVHState& state)
 {
-    if (node->objects.size() <= m_MaxPrimsInNode) return;
+    state.totalNodeCount++;
+    if (node->objects.size() <= m_MaxPrimsInNode || node->depth > 32)
+    {
+        state.addLeafNode(node);
+        return;
+    }
 
     int dim = node->bounds.MaxExtentDimension();
     node->splitAxis = dim;
@@ -43,7 +59,11 @@ void BVH::Split(BVHTreeNode *node)
         if (object->GetAABB().Centroid()[dim] < mid) leftObjects.push_back(object);
         else rightObjects.push_back(object);
     }
-    if (leftObjects.empty() || rightObjects.empty()) return;
+    if (leftObjects.empty() || rightObjects.empty())
+    {
+        state.addLeafNode(node);
+        return;
+    }
 
     auto* left = new BVHTreeNode {};
     auto* right = new BVHTreeNode {};
@@ -53,12 +73,117 @@ void BVH::Split(BVHTreeNode *node)
     right->objects = std::move(rightObjects);
     left->UpdateBounds();
     right->UpdateBounds();
+    left->depth = node->depth + 1;
+    right->depth = node->depth + 1;
 
     node->objects.clear();
     node->objects.shrink_to_fit();
 
-    Split(left);
-    Split(right);
+    Split(left, state);
+    Split(right, state);
+}
+
+void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
+{
+    state.totalNodeCount++;
+    if (node->objects.size() <= m_MaxPrimsInNode || node->depth > 32)
+    {
+        state.addLeafNode(node);
+        return;
+    }
+
+    Vec3f diag = node->bounds.Diagonal();
+
+    float minCost = FLT_MAX;
+    std::vector<Object *> leftObjects, rightObjects;
+
+    int bucketNum = 12; // min(objects.size(), 12);
+    std::vector<std::vector<size_t>> indicesInBuckets(3 * bucketNum);
+    size_t splitBucketIndex = 0;
+    AABB minLeftBounds {};
+    AABB minRightBounds {};
+
+    for (int dim = 0; dim < 3; dim++)
+    {
+        std::vector<AABB> bucketBounds(bucketNum);
+        std::vector<size_t> objectsCountInBucket(bucketNum, 0);
+        size_t objectIndex = 0;
+        for (const auto& object: node->objects)
+        {
+            float axisCenter = object->GetAABB().Centroid()[dim];
+            size_t bucketIndex = Clamp<size_t>(static_cast<size_t>((axisCenter - node->bounds.pMin[dim]) / diag[dim] * bucketNum), 0, bucketNum - 1);
+            bucketBounds[bucketIndex] = bucketBounds[bucketIndex].Union(object->GetAABB());
+            objectsCountInBucket[bucketIndex]++;
+            indicesInBuckets[dim * bucketNum + bucketIndex].emplace_back(objectIndex);
+            objectIndex++;
+        }
+
+        AABB leftBounds = bucketBounds[0];
+        size_t leftObjectsCount = objectsCountInBucket[0];
+        for (size_t i = 1; i < bucketNum; i++)
+        {
+            AABB rightBounds {};
+            size_t rightObjectsCount = 0;
+            for (size_t j = bucketNum - 1; j >= i; j--)
+            {
+                rightBounds = rightBounds.Union(bucketBounds[j]);
+                rightObjectsCount += objectsCountInBucket[j];
+            }
+            if (rightObjectsCount == 0) break;
+            if (leftObjectsCount != 0)
+            {
+                float cost = leftBounds.SurfaceArea() * leftObjectsCount + rightBounds.SurfaceArea() * rightObjectsCount;
+                if (cost < minCost)
+                {
+                    minCost = cost;
+                    node->splitAxis = dim;
+                    splitBucketIndex = i;
+                    minLeftBounds = leftBounds;
+                    minRightBounds = rightBounds;
+                }
+            }
+            leftBounds = leftBounds.Union(bucketBounds[i]);
+            leftObjectsCount += objectsCountInBucket[i];
+        }
+    }
+
+    if (splitBucketIndex == 0)
+    {
+        state.addLeafNode(node);
+        return;
+    }
+
+    for (size_t i = 0; i < splitBucketIndex; i++)
+    {
+        for (size_t index: indicesInBuckets[node->splitAxis * bucketNum + i])
+        {
+            leftObjects.push_back(node->objects[index]);
+        }
+    }
+    for (size_t i = splitBucketIndex; i < bucketNum; i++)
+    {
+        for (size_t index: indicesInBuckets[node->splitAxis * bucketNum + i])
+        {
+            rightObjects.push_back(node->objects[index]);
+        }
+    }
+
+    auto* left = new BVHTreeNode {};
+    auto* right = new BVHTreeNode {};
+    node->children[0] = left;
+    node->children[1] = right;
+    left->objects = std::move(leftObjects);
+    right->objects = std::move(rightObjects);
+    left->bounds = minLeftBounds;
+    right->bounds = minRightBounds;
+    left->depth = node->depth + 1;
+    right->depth = node->depth + 1;
+
+    node->objects.clear();
+    node->objects.shrink_to_fit();
+
+    SAHSplit(left, state);
+    SAHSplit(right, state);
 }
 
 std::optional<HitInfo> BVH::Intersect(const Ray &ray, float tMin, float tMax) const

@@ -10,7 +10,7 @@ Vec3f DebugBTCRenderer::RenderPixel(const Vec2i &pixelCoords)
 #ifdef DEBUG
     auto ray = camera.GenerateRay(pixelCoords);
     auto result = scene.Intersect(ray);
-    return ColorRGB::GenerateHeatMapRGB(ray.boundsTestCount / 200.f);
+    return ColorRGB::GenerateHeatMapRGB(ray.boundsTestCount / 150.f);
 #else
     return {};
 #endif
