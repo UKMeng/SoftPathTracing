@@ -29,7 +29,7 @@ int main()
 
     Plane plane { {0, 0, 0}, {100, 100}, {0, 1, 0}};
 
-    Model model("models/dragon_87k.obj");
+    Model model("models/dragon_871k.obj");
 
     Scene scene {};
 

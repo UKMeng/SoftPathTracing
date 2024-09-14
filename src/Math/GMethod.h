@@ -9,6 +9,12 @@
 #undef M_PI
 #define M_PI 3.141592653589793f
 
+template<typename T>
+T Clamp(const T& val, const T& minVal, const T& maxVal)
+{
+    return std::max(minVal, std::min(maxVal, val));
+}
+
 inline float Clamp(const float& val, const float& minVal, const float& maxVal)
 {
     return std::max(minVal, std::min(maxVal, val));

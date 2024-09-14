@@ -60,6 +60,13 @@ void ThreadPool::Worker(ThreadPool *master)
 {
     while (master->m_Alive == 1)
     {
+        if (master->m_TaskList.empty())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            continue;
+        }
+
+
         Task *task = master->GetTask();
         if (task != nullptr)
         {
