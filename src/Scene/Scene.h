@@ -21,12 +21,12 @@ public:
 
     void BuildBVH()
     {
-        bvh = std::make_unique<SceneBVH>(m_ObjectList, 1, SceneBVH::SplitMethod::NAIVE);
+        bvh = std::make_unique<SceneBVH>(std::move(m_ObjectList));
     }
 
     virtual AABB GetAABB() const override
     {
-        return bvh->root->boundingBox;
+        return bvh->GetAABB();
     }
 private:
     std::vector<ObjectInstance*> m_ObjectList;

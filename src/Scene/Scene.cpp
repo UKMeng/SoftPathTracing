@@ -3,37 +3,10 @@
 //
 
 #include "Scene.h"
-#include "DebugMacro.h"
 
 std::optional<HitInfo> Scene::Intersect(const Ray &ray, float tMin, float tMax) const
 {
-    //return bvh->Intersect(ray, tMin, tMax);
-
-    std::optional<HitInfo> closestHitInfo = {};
-    const ObjectInstance* closestInstance = nullptr;
-
-    for (const auto& objectInstance: m_ObjectList)
-    {
-        Ray rayInModelSpace = ray.RayFromWorldToModel(objectInstance->invModelMatrix);
-        auto hitInfo = objectInstance->object.Intersect(rayInModelSpace, tMin, tMax);
-        DEBUG_LINE(ray.boundsTestCount += rayInModelSpace.boundsTestCount);
-        DEBUG_LINE(ray.triangleTestCount += rayInModelSpace.triangleTestCount);
-        if (hitInfo.has_value())
-        {
-            closestHitInfo = hitInfo;
-            tMax = hitInfo->t;
-            closestInstance = objectInstance;
-        }
-    }
-
-    if (closestInstance)
-    {
-        closestHitInfo->hitPos = closestInstance->modelMatrix * Vec4f(closestHitInfo->hitPos, 1.0f);
-        closestHitInfo->normal = Normalize((closestInstance->invModelMatrix.Transpose() * Vec4f(closestHitInfo->normal, 0.0f)).xyz()); // use Normal Matrix
-        closestHitInfo->material = &closestInstance->material;
-
-    }
-    return closestHitInfo;
+    return bvh->Intersect(ray, tMin, tMax);
 }
 
 void Scene::AddObject(const Object& object, const Material& material, const Vec3f &translate, const Vec3f &rotate, const Vec3f &scale)

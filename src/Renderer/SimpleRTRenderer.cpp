@@ -17,18 +17,10 @@ Vec3f SimpleRTRenderer::RenderPixel(const Vec2i &pixelCoords)
        auto result = scene.Intersect(ray);
        if (result.has_value())
        {
-//           if (result->material->emissive.x != 0.0 && maxBounce < 30)
-//           {
-//               std::cout << "Bounce" << maxBounce << std::endl;
-//               std::cout << "Emissive" << result->material->emissive.x << " " << result->material->emissive.y << " " << result->material->emissive.z << std::endl;
-//               std::cout << "color" << color.x << " " << color.y << " " << color.z << std::endl;
-//               std::cout << "beta" << beta.x << " " << beta.y << " " << beta.z << std::endl;
-//           }
-
            color += beta * result->material->emissive;
            beta *= result->material->albedo;
 
-           ray.origin = result->hitPos;
+//           ray.origin = result->hitPos;
 
            Frame frame(result->normal);
            Vec3f lightDir;
@@ -36,10 +28,6 @@ Vec3f SimpleRTRenderer::RenderPixel(const Vec2i &pixelCoords)
            if (result->material->isSpecular)
            {
                // specular
-//               std::cout << "Specular" << std::endl;
-//               std::cout << "color" << color.x << " " << color.y << " " << color.z << std::endl;
-//               std::cout << "beta" << beta.x << " " << beta.y << " " << beta.z << std::endl;
-//               std::cout << result->material->albedo.x << result->material->albedo.y << result->material->albedo.z << std::endl;
                Vec3f viewDir = frame.GetLocalFromWorld(-ray.direction);
                lightDir = {-viewDir.x, viewDir.y, -viewDir.z};
            } else
@@ -54,7 +42,7 @@ Vec3f SimpleRTRenderer::RenderPixel(const Vec2i &pixelCoords)
                if (lightDir.y < 0) lightDir.y = -lightDir.y;
 
            }
-           ray.direction = frame.GetWorldFromLocal(lightDir);
+           ray = Ray(result->hitPos, frame.GetWorldFromLocal(lightDir));
        } else break;
     }
 

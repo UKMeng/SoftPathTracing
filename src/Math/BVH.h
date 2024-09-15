@@ -90,9 +90,7 @@ public:
         SAH
     };
 
-    BVH(std::vector<Object*> &&objects, int maxPrimsInNode = 1, SplitMethod splitMethod = SplitMethod::NAIVE);
-
-//    BVH(std::vector<Object*>& objects, int maxPrimsInNode = 1, SplitMethod splitMethod = SplitMethod::NAIVE);
+    BVH(std::vector<Object*> &&objects, int maxPrimsInNode = 1, SplitMethod splitMethod = SplitMethod::SAH);
 
     std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const;
 

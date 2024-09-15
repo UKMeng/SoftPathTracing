@@ -194,7 +194,7 @@ void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
 
 std::optional<HitInfo> BVH::Intersect(const Ray &ray, float tMin, float tMax) const
 {
-    std::optional<HitInfo> closetHitInfo {};
+    std::optional<HitInfo> closestHitInfo {};
 
     DEBUG_LINE(size_t boundsTestCount = 0, triangleTestCount = 0)
 
@@ -239,7 +239,7 @@ std::optional<HitInfo> BVH::Intersect(const Ray &ray, float tMin, float tMax) co
                 if (hitInfo.has_value())
                 {
                     tMax = hitInfo->t;
-                    closetHitInfo = hitInfo;
+                    closestHitInfo = hitInfo;
                 }
             }
             if (ptr == stack.begin()) break;
@@ -250,7 +250,7 @@ std::optional<HitInfo> BVH::Intersect(const Ray &ray, float tMin, float tMax) co
     DEBUG_LINE(ray.boundsTestCount += boundsTestCount)
     DEBUG_LINE(ray.triangleTestCount += triangleTestCount)
 
-    return closetHitInfo;
+    return closestHitInfo;
 }
 
 size_t BVH::Flatten(BVHTreeNode *node)
