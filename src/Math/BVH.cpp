@@ -38,6 +38,8 @@ BVH::BVH(std::vector<Object *> &&objects, int maxPrimsInNode, SplitMethod splitM
     std::cout << "Mean leaf node primitives count: " << static_cast<float>(totalPrimsCount) / static_cast<float>(bvhState.leafNodeCount) << std::endl;
     std::cout << "Max leaf depth: " << bvhState.maxLeafDepth << std::endl;
 
+    m_Nodes.reserve(bvhState.totalNodeCount);
+    m_OrderedPrimitives.reserve(totalPrimsCount);
     Flatten(root);
 }
 
@@ -95,13 +97,14 @@ void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
     Vec3f diag = node->bounds.Diagonal();
 
     float minCost = FLT_MAX;
-    std::vector<Object *> leftObjects, rightObjects;
 
     int bucketNum = 12; // min(objects.size(), 12);
     std::vector<std::vector<size_t>> indicesInBuckets(3 * bucketNum);
     size_t splitBucketIndex = 0;
     AABB minLeftBounds {};
     AABB minRightBounds {};
+    size_t minLeftObjectsCount = 0;
+    size_t minRightObjectsCount = 0;
 
     for (int dim = 0; dim < 3; dim++)
     {
@@ -140,6 +143,8 @@ void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
                     splitBucketIndex = i;
                     minLeftBounds = leftBounds;
                     minRightBounds = rightBounds;
+                    minLeftObjectsCount = leftObjectsCount;
+                    minRightObjectsCount = rightObjectsCount;
                 }
             }
             leftBounds = leftBounds.Union(bucketBounds[i]);
@@ -153,27 +158,28 @@ void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
         return;
     }
 
+    auto* left = m_Allocator.Allocate();
+    auto* right = m_Allocator.Allocate();
+    node->children[0] = left;
+    node->children[1] = right;
+
+    left->objects.reserve(minLeftObjectsCount);
+    right->objects.reserve(minRightObjectsCount);
     for (size_t i = 0; i < splitBucketIndex; i++)
     {
         for (size_t index: indicesInBuckets[node->splitAxis * bucketNum + i])
         {
-            leftObjects.push_back(node->objects[index]);
+            left->objects.push_back(node->objects[index]);
         }
     }
     for (size_t i = splitBucketIndex; i < bucketNum; i++)
     {
         for (size_t index: indicesInBuckets[node->splitAxis * bucketNum + i])
         {
-            rightObjects.push_back(node->objects[index]);
+            right->objects.push_back(node->objects[index]);
         }
     }
 
-    auto* left = m_Allocator.Allocate();
-    auto* right = m_Allocator.Allocate();
-    node->children[0] = left;
-    node->children[1] = right;
-    left->objects = std::move(leftObjects);
-    right->objects = std::move(rightObjects);
     left->bounds = minLeftBounds;
     right->bounds = minRightBounds;
     left->depth = node->depth + 1;
