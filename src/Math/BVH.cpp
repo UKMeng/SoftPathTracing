@@ -13,7 +13,7 @@ BVH::BVH(std::vector<Object *> &&objects, int maxPrimsInNode, SplitMethod splitM
     : m_MaxPrimsInNode(maxPrimsInNode), m_SplitMethod(splitMethod)
 {
     Profile profile("Build BVH");
-    BVHTreeNode* root = new BVHTreeNode {};
+    BVHTreeNode* root = m_Allocator.Allocate();
     root->objects = std::move(objects);
     root->UpdateBounds();
     root->depth = 1;
@@ -65,8 +65,8 @@ void BVH::Split(BVHTreeNode *node, BVHState& state)
         return;
     }
 
-    auto* left = new BVHTreeNode {};
-    auto* right = new BVHTreeNode {};
+    auto* left = m_Allocator.Allocate();
+    auto* right = m_Allocator.Allocate();
     node->children[0] = left;
     node->children[1] = right;
     left->objects = std::move(leftObjects);
@@ -168,8 +168,8 @@ void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
         }
     }
 
-    auto* left = new BVHTreeNode {};
-    auto* right = new BVHTreeNode {};
+    auto* left = m_Allocator.Allocate();
+    auto* right = m_Allocator.Allocate();
     node->children[0] = left;
     node->children[1] = right;
     left->objects = std::move(leftObjects);

@@ -52,7 +52,33 @@ struct BVHState
         maxLeafNodePrimsCount = std::max(maxLeafNodePrimsCount, node->objects.size());
         maxLeafDepth = std::max<size_t>(maxLeafDepth, node->depth);
     }
+};
 
+class BVHTreeNodeAllocator
+{
+public:
+    BVHTreeNodeAllocator() : m_ptr(4096) {}
+    ~BVHTreeNodeAllocator()
+    {
+        for (auto& node: m_NodeList)
+        {
+            delete[] node;
+        }
+        m_NodeList.clear();
+    }
+
+    BVHTreeNode* Allocate()
+    {
+        if (m_ptr == 4096)
+        {
+            m_NodeList.push_back(new BVHTreeNode[4096]);
+            m_ptr = 0;
+        }
+        return &m_NodeList.back()[m_ptr++];
+    }
+private:
+    size_t m_ptr;
+    std::vector<BVHTreeNode*> m_NodeList;
 };
 
 class BVH
@@ -88,5 +114,5 @@ private:
     const int m_MaxPrimsInNode;
     const SplitMethod m_SplitMethod;
     std::vector<Object*> m_OrderedPrimitives;
-    int m_MaxDepth = 0;
+    BVHTreeNodeAllocator m_Allocator {};
 };
