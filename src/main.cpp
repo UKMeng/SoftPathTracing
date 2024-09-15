@@ -11,8 +11,8 @@
 #include "ColorRGB.h"
 #include "RNG.h"
 #include "NormalRenderer.h"
-#include "SimpleRTRenderer.h"
 #include "DebugRenderer.h"
+#include "PathTracingRenderer.h"
 
 int main()
 {
@@ -101,8 +101,9 @@ int main()
     DebugTTCRenderer debugTTCRenderer {camera, scene };
     debugTTCRenderer.Render(1, "DebugTTC.ppm");
 
-    SimpleRTRenderer simpleRenderer { camera, scene };
-    simpleRenderer.Render(128, "SimpleRT.ppm");
+
+    PathTracingRenderer pathTracingRenderer { camera, scene };
+    pathTracingRenderer.Render(128, "PathTracing.ppm");
 
     return 0;
 }
