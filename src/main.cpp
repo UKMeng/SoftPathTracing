@@ -103,7 +103,7 @@ int main()
 
 
     PathTracingRenderer pathTracingRenderer { camera, scene };
-    pathTracingRenderer.Render(128, "PathTracing.ppm");
+    pathTracingRenderer.Render(128, "PT_Cos.ppm");
 
     return 0;
 }

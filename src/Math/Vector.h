@@ -66,6 +66,14 @@ public:
         return *this;
     }
 
+    Vec3f& operator/=(const float& scale)
+    {
+        x /= scale;
+        y /= scale;
+        z /= scale;
+        return *this;
+    }
+
     float operator[](int index) const
     {
         return index == 0 ? x : index == 1 ? y : z;

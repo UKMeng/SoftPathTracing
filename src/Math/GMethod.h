@@ -8,6 +8,7 @@
 
 #undef M_PI
 #define M_PI 3.141592653589793f
+#define INV_PI 0.3183098861837907f
 
 template<typename T>
 T Clamp(const T& val, const T& minVal, const T& maxVal)
@@ -38,6 +39,21 @@ inline float Pow(const float& val, const float& power)
 inline float Abs(const float& val)
 {
     return std::abs(val);
+}
+
+inline float Sqrt(const float& val)
+{
+    return std::sqrt(val);
+}
+
+inline float Cos(const float& val)
+{
+    return std::cos(val);
+}
+
+inline float Sin(const float& val)
+{
+    return std::sin(val);
 }
 
 // reference: https://en.wikipedia.org/wiki/Fast_inverse_square_root

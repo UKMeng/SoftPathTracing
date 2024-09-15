@@ -23,7 +23,7 @@ Vec3f PathTracingRenderer::RenderPixel(const Vec2i &pixelCoords)
             {
                 break;
             }
-            beta *= result->material->albedo / q;
+            beta /= q;
 
 
             Frame frame(result->normal);
@@ -40,24 +40,20 @@ Vec3f PathTracingRenderer::RenderPixel(const Vec2i &pixelCoords)
                 brdf = result->material->albedo; // / lightDir.y;
                 // pdf = 1;
                 beta *= brdf; // * lightDir.y;
-            } else
+            }
+            else
             {
                 // Lambertian diffuse
-                // TODO: Cosine Hemisphere Importance Sampling
-                // Acceptance-Rejection Sampling
-                do
-                {
-                    lightDir = { rng.Uniform(), rng.Uniform(), rng.Uniform() };
-                    lightDir = lightDir * 2.0f - 1.0f;
-                } while (lightDir.Length() > 1.0f);
-                if (lightDir.y < 0) lightDir.y = -lightDir.y;
-                brdf = result->material->albedo; // /PI
-                // pdf = 0.5; // /PI
-                // abs(Dot(lightDir, Vec3f(0, 1, 0))) = lightDir.y
-                beta *= brdf * lightDir.y * 2; // / pdf;
+                // Cosine Hemisphere Importance Sampling
+                Vec4f sample = rng.CosineSampleHemisphere({rng.Uniform(), rng.Uniform() });
+                lightDir = sample.xyz();
+                pdf = sample.w;
+                brdf = result->material->albedo * INV_PI;
+                beta *= brdf * lightDir.y / pdf;
             }
             ray = Ray(result->hitPos, frame.GetWorldFromLocal(lightDir));
-        } else break;
+        }
+        else break;
     }
 
     return radiance;
