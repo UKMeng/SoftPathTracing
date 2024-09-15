@@ -12,12 +12,12 @@
 struct ObjectInstance
 {
     const Object& object;
-    Material material;
+    Material* material;
     Mat4f modelMatrix;
     Mat4f invModelMatrix;
     AABB worldBounds = {};
 
-    ObjectInstance(const Object& object, const Material& material, const Mat4f& modelMatrix, const Mat4f& invModelMatrix)
+    ObjectInstance(const Object& object, Material* material, const Mat4f& modelMatrix, const Mat4f& invModelMatrix)
         : object(object), material(material), modelMatrix(modelMatrix), invModelMatrix(invModelMatrix) {}
 
     void UpdateBounds()

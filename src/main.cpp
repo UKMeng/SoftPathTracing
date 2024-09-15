@@ -13,6 +13,8 @@
 #include "NormalRenderer.h"
 #include "DebugRenderer.h"
 #include "PathTracingRenderer.h"
+#include "SpecularMaterial.h"
+#include "LambertianMaterial.h"
 
 int main()
 {
@@ -39,33 +41,45 @@ int main()
                 rng.Uniform() * 10 - 5,
         };
         float u = rng.Uniform();
+        Material* material;
         if (u < 0.9) {
+            if (rng.Uniform() > 0.5)
+            {
+                material = new SpecularMaterial({ 0.5, 0.5, 0.5 });
+            }
+            else
+            {
+                material = new LambertianMaterial({0.5, 0.5, 0.5});
+            }
             scene.AddObject(
                     model,
-                    {{0.5, 0.5, 0.5}, rng.Uniform() > 0.5 },
+                    material,
                     random_pos,
                     { rng.Uniform() * 360, rng.Uniform() * 360, rng.Uniform() * 360 },
                     { 1, 1, 1 }
 
             );
         } else if (u < 0.95) {
+            material = new SpecularMaterial({ rng.Uniform(), rng.Uniform(), rng.Uniform() });
             scene.AddObject(
                     sphere,
-                    { { rng.Uniform(), rng.Uniform(), rng.Uniform() }, true },
+                    material,
                     random_pos,
                     { 0, 0, 0},
                     { 0.4, 0.4, 0.4 }
             );
         } else {
+            material = new LambertianMaterial( { 0, 0, 0 });
+            material->emissive = { rng.Uniform() * 4, rng.Uniform() * 4, rng.Uniform() * 4 };
             random_pos.y += 4;
             scene.AddObject(
                     sphere,
-                    { { 1, 1, 1 }, false, { rng.Uniform() * 4, rng.Uniform() * 4, rng.Uniform() * 4 } },
+                    material,
                     random_pos
             );
         }
     }
-    scene.AddObject(plane, { ColorRGB(120, 204, 157) }, { 0, -0.5, 0 });
+    scene.AddObject(plane, new LambertianMaterial(ColorRGB(120, 204, 157)), { 0, -0.5, 0 });
 
     scene.BuildBVH();
 

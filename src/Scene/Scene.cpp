@@ -9,7 +9,7 @@ std::optional<HitInfo> Scene::Intersect(const Ray &ray, float tMin, float tMax) 
     return bvh->Intersect(ray, tMin, tMax);
 }
 
-void Scene::AddObject(const Object& object, const Material& material, const Vec3f &translate, const Vec3f &rotate, const Vec3f &scale)
+void Scene::AddObject(const Object& object, Material* material, const Vec3f &translate, const Vec3f &rotate, const Vec3f &scale)
 {
     // Model Matrix - from model space to world space
     Mat4f modelMatrix = Mat4f::Translate(translate) * Mat4f::Rotate(rotate) * Mat4f::Scale(scale);

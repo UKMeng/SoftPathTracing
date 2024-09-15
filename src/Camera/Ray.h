@@ -33,5 +33,5 @@ struct HitInfo
     float t;
     Vec3f hitPos;
     Vec3f normal;
-    const Material* material = nullptr;
+    Material* material = nullptr;
 };

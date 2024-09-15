@@ -14,7 +14,7 @@ public:
     virtual std::optional<HitInfo> Intersect(const Ray &ray, float tMin = 1e-5, float tMax = std::numeric_limits<float>::infinity()) const override;
 
     void AddObject(const Object& object,
-                   const Material& material = {},
+                   Material* material = nullptr,
                    const Vec3f& translate = {0.f, 0.f, 0.f},
                    const Vec3f& rotate = {0.f, 0.f, 0.f},
                    const Vec3f& scale = {1.f, 1.f, 1.f});
