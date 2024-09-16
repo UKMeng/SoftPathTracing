@@ -5,8 +5,6 @@
 #pragma once
 #include <iostream>
 
-#include "GMethod.h"
-
 class Vec4f;
 
 class Vec3f
@@ -41,6 +39,21 @@ public:
     Vec3f operator/(const float& scale) const
     {
         return Vec3f(x / scale, y / scale, z / scale);
+    }
+
+    Vec3f operator/(const Vec3f& scale) const
+    {
+        return Vec3f(x / scale.x, y / scale.y, z / scale.z);
+    }
+
+    friend Vec3f operator+(const float& value, const Vec3f& vec)
+    {
+        return Vec3f(value + vec.x, value + vec.y, value + vec.z);
+    }
+
+    friend Vec3f operator-(const float& value, const Vec3f& vec)
+    {
+        return Vec3f(value - vec.x, value - vec.y, value - vec.z);
     }
 
     friend Vec3f operator*(const float& scale, const Vec3f& vec)

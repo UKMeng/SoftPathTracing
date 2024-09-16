@@ -5,6 +5,7 @@
 #pragma once
 
 // global math method
+#include "Vector.h"
 
 #undef M_PI
 #define M_PI 3.141592653589793f
@@ -19,6 +20,11 @@ T Clamp(const T& val, const T& minVal, const T& maxVal)
 inline float Clamp(const float& val, const float& minVal, const float& maxVal)
 {
     return std::max(minVal, std::min(maxVal, val));
+}
+
+inline Vec3f Clamp(const Vec3f& val, const float& minVal, const float& maxVal)
+{
+    return Vec3f(Clamp(val.x, minVal, maxVal), Clamp(val.y, minVal, maxVal), Clamp(val.z, minVal, maxVal));
 }
 
 inline float Lerp(const float& val1, const float& val2, const float& t)
@@ -56,6 +62,11 @@ inline float Sin(const float& val)
     return std::sin(val);
 }
 
+inline float Max(const float& val1, const float& val2)
+{
+    return std::max(val1, val2);
+}
+
 // reference: https://en.wikipedia.org/wiki/Fast_inverse_square_root
 inline float Q_rsqrt(float number)
 {
@@ -75,19 +86,25 @@ inline float Q_rsqrt(float number)
 }
 
 template<typename T>
-inline T Normalize(const T& vec)
+T Normalize(const T& vec)
 {
     return vec.Normalize();
 }
 
 template<typename T>
-inline float Dot(const T& vec1, const T& vec2)
+float Dot(const T& vec1, const T& vec2)
 {
     return vec1.Dot(vec2);
 }
 
 template<typename T>
-inline T Cross(const T& vec1, const T& vec2)
+T Cross(const T& vec1, const T& vec2)
 {
     return vec1.Cross(vec2);
+}
+
+template<typename T>
+T Mix(const T& a, const T& b, float t)
+{
+    return a + (b - a) * t;
 }

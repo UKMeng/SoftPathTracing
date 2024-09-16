@@ -3,6 +3,7 @@
 //
 
 #include "Matrix.h"
+#include "GMethod.h"
 
 Mat4f Mat4f::Identity()
 {

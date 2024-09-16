@@ -25,14 +25,34 @@ public:
         float CosTheta = Sqrt(E.y);
         float SinTheta = Sqrt(1 - CosTheta * CosTheta);
 
-        Vec3f H;
-        H.x = SinTheta * Cos(Phi);
-        H.y = CosTheta;
-        H.z = SinTheta * Sin(Phi);
+        float x = SinTheta * Cos(Phi);
+        float y = CosTheta;
+        float z = SinTheta * Sin(Phi);
 
         float PDF = CosTheta * INV_PI;
 
-        return Vec4f(H, PDF);
+        return Vec4f{ x, y, z, PDF };
+    }
+
+    /// Importance Sampling GGX
+    /// \param E two random numbers between 0 and 1
+    /// \param a2 roughness * roughness
+    /// \return Sampling direction and PDF
+    Vec4f ImportanceSampleGGX(Vec2f E, float a2)
+    {
+        float Phi = 2.0f * M_PI * E.x;
+        float CosTheta = Sqrt((1.0f - E.y) / (1.0f + (a2 - 1.0f) * E.y));
+        float SinTheta = Sqrt(1.0f - CosTheta * CosTheta);
+
+        float x = SinTheta * Cos(Phi);
+        float y = CosTheta;
+        float z = SinTheta * Sin(Phi);
+
+        float d = (a2 * CosTheta - CosTheta) * CosTheta + 1;
+        float D = a2 / (M_PI * d * d);
+        float PDF = D * CosTheta;
+
+        return Vec4f {x, y, z, PDF};
     }
 
 private:

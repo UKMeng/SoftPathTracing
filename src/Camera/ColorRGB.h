@@ -14,10 +14,13 @@ public:
 
     ColorRGB(const Vec3f& intensity)
     {
+        // Tone Mapping
+        Vec3f mappedColor = ACESFilmToneMapping(intensity);
+
         // Gamma correction
-        r = Clamp(Pow(intensity.x, 1 / 2.2) * 255, 0, 255);
-        g = Clamp(Pow(intensity.y, 1 / 2.2) * 255, 0, 255);
-        b = Clamp(Pow(intensity.z, 1 / 2.2) * 255, 0, 255);
+        r = Clamp(Pow(mappedColor.x, 1 / 2.2) * 255, 0, 255);
+        g = Clamp(Pow(mappedColor.y, 1 / 2.2) * 255, 0, 255);
+        b = Clamp(Pow(mappedColor.z, 1 / 2.2) * 255, 0, 255);
     }
 
 
@@ -28,6 +31,15 @@ public:
             Pow(static_cast<float>(g) / 255.f, 2.2),
             Pow(static_cast<float>(b) / 255.f, 2.2),
         };
+    }
+
+    inline Vec3f ACESFilmToneMapping(const Vec3f& x) {
+        const float a = 2.51f;
+        const float b = 0.03f;
+        const float c = 2.43f;
+        const float d = 0.59f;
+        const float e = 0.14f;
+        return Clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0f, 1.0f);
     }
 
     inline static ColorRGB ColorLerp(const ColorRGB& a, const ColorRGB& b, float t)

@@ -3,6 +3,7 @@
 //
 
 #include "Vector.h"
+#include "GMethod.h"
 
 void Vec3f::Print() const
 {
@@ -35,4 +36,3 @@ Vec4f Vec3f::EularAngleToQuaternion()
                   sinX * cosY * cosZ - cosX * sinY * sinZ,
     };
 }
-
