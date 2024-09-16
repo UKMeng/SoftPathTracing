@@ -19,7 +19,7 @@ public:
                    const Vec3f& rotate = {0.f, 0.f, 0.f},
                    const Vec3f& scale = {1.f, 1.f, 1.f});
 
-    std::optional<HitInfo> SampleLight(float& pdf) const;
+    virtual std::optional<HitInfo> Sample(float& pdf, RNG& rng) const;
 
     void BuildBVH()
     {
@@ -29,6 +29,12 @@ public:
     virtual AABB GetAABB() const override
     {
         return bvh->GetAABB();
+    }
+
+    virtual float GetArea() const override
+    {
+        // TODO: may be something else
+        return -1.f;
     }
 private:
     std::vector<ObjectInstance*> m_ObjectList;

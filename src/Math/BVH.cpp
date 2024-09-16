@@ -43,12 +43,23 @@ BVH::BVH(std::vector<Object *> &&objects, int maxPrimsInNode, SplitMethod splitM
     Flatten(root);
 }
 
+float BVH::CalArea(BVHTreeNode* node)
+{
+    float area = 0.0f;
+    for (const auto &object : node->objects)
+    {
+        area += object->GetArea();
+    }
+    return area;
+}
+
 void BVH::Split(BVHTreeNode *node, BVHState& state)
 {
     state.totalNodeCount++;
     if (node->objects.size() <= m_MaxPrimsInNode || node->depth > 32)
     {
         state.addLeafNode(node);
+        node->area = CalArea(node);
         return;
     }
 
@@ -64,6 +75,7 @@ void BVH::Split(BVHTreeNode *node, BVHState& state)
     if (leftObjects.empty() || rightObjects.empty())
     {
         state.addLeafNode(node);
+        node->area = CalArea(node);
         return;
     }
 
@@ -83,6 +95,8 @@ void BVH::Split(BVHTreeNode *node, BVHState& state)
 
     Split(left, state);
     Split(right, state);
+
+    node->area = left->area + right->area;
 }
 
 void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
@@ -91,6 +105,7 @@ void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
     if (node->objects.size() <= m_MaxPrimsInNode || node->depth > 32)
     {
         state.addLeafNode(node);
+        node->area = CalArea(node);
         return;
     }
 
@@ -155,6 +170,7 @@ void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
     if (splitBucketIndex == 0)
     {
         state.addLeafNode(node);
+        node->area = CalArea(node);
         return;
     }
 
@@ -190,6 +206,8 @@ void BVH::SAHSplit(BVHTreeNode *node, BVHState &state)
 
     SAHSplit(left, state);
     SAHSplit(right, state);
+
+    node->area = left->area + right->area;
 }
 
 std::optional<HitInfo> BVH::Intersect(const Ray &ray, float tMin, float tMax) const
@@ -259,7 +277,8 @@ size_t BVH::Flatten(BVHTreeNode *node)
         node->bounds,
         0,
         static_cast<uint16_t>(node->objects.size()),
-        static_cast<uint8_t>(node->splitAxis)
+        static_cast<uint8_t>(node->splitAxis),
+        node->area
     };
 
     size_t index = m_Nodes.size();
@@ -278,6 +297,53 @@ size_t BVH::Flatten(BVHTreeNode *node)
         }
     }
     return index;
+}
+
+std::optional<HitInfo> BVH::Sample(float &pdf, RNG &rng)
+{
+    std::optional<HitInfo> hitInfo {};
+
+    float p = rng.Uniform() * m_Nodes[0].area;
+
+    size_t currentIndex = 0;
+    while (true)
+    {
+        auto& node = m_Nodes[currentIndex];
+
+        if (node.objectCount == 0)
+        {
+            size_t rightIndex = m_Nodes[currentIndex].child1Index;
+            currentIndex++; // left node index;
+            if (p >= m_Nodes[currentIndex].area) // if p is in the right node
+            {
+                p = p - m_Nodes[currentIndex].area;
+                currentIndex = rightIndex;
+            }
+        }
+        else
+        {
+            // leaf node
+            auto objectIter = m_OrderedPrimitives.begin() + node.objectIndex;
+            for (size_t i = 0; i < node.objectCount; i++)
+            {
+                auto object = *objectIter++;
+                if (p < object->GetArea())
+                {
+                    hitInfo = object->Sample(pdf, rng);
+                    pdf *= object->GetArea();
+                    break;
+                }
+                else
+                {
+                    p -= object->GetArea();
+                }
+            }
+            break;
+        }
+    }
+    pdf /= m_Nodes[0].area;
+
+    return hitInfo;
 }
 
 //BVH::BVH(std::vector<Object *> &objects, int maxPrimsInNode, BVH::SplitMethod splitMethod)

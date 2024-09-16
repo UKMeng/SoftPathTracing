@@ -29,3 +29,14 @@ std::optional<HitInfo> Triangle::Intersect(const Ray &ray, float tMin, float tMa
 
     return {};
 }
+
+std::optional<HitInfo> Triangle::Sample(float &pdf, RNG &rng) const
+{
+    pdf = 1.0f / area;
+    float u = Sqrt(rng.Uniform());
+    float v = rng.Uniform();
+
+    Vec3f hitPos = v0 * (1.0f - u) + v1 * (u * (1.0f - v)) + v2 * (u * v);
+
+    return HitInfo { -1.0f, hitPos, normal };
+}

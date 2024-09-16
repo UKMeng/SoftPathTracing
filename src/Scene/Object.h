@@ -15,4 +15,6 @@ public:
     virtual ~Object() {}
     virtual std::optional<HitInfo> Intersect(const Ray &ray, float tMin, float tMax) const = 0;
     virtual AABB GetAABB() const = 0;
+    virtual float GetArea() const = 0;
+    virtual std::optional<HitInfo> Sample(float& pdf, RNG& rng) const = 0;
 };

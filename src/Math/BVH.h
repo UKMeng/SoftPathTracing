@@ -16,6 +16,7 @@ struct BVHTreeNode
     std::vector<Object*> objects;
     int depth;
     int splitAxis;
+    float area;
 
     void UpdateBounds()
     {
@@ -27,7 +28,7 @@ struct BVHTreeNode
     }
 };
 
-struct alignas(32) BVHNode
+struct BVHNode
 {
     AABB bounds;
     union
@@ -37,6 +38,7 @@ struct alignas(32) BVHNode
     };
     uint16_t objectCount;
     uint8_t splitAxis;
+    float area;
 };
 
 struct BVHState
@@ -94,6 +96,8 @@ public:
 
     std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const;
 
+    std::optional<HitInfo> Sample(float& pdf, RNG& rng);
+
     AABB GetAABB() const
     {
         return m_Nodes[0].bounds;
@@ -103,6 +107,7 @@ private:
     void Split(BVHTreeNode* node, BVHState& state);
     void SAHSplit(BVHTreeNode* node, BVHState& state);
     size_t Flatten(BVHTreeNode* node);
+    float CalArea(BVHTreeNode* node);
 
 //    BVHTreeNode* Build(std::vector<Object*> objects, int depth);
 //    BVHTreeNode* SAHBuild(std::vector<Object*> objects, int depth);

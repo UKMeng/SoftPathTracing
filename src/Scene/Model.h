@@ -15,13 +15,20 @@ class Model: public Object
 {
 public:
     std::vector<Triangle> triangles;
-    AABB boundingBox;
 
     Model(const std::filesystem::path &filename);
 
     virtual std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const override;
 
+    virtual std::optional<HitInfo> Sample(float& pdf, RNG& rng) const override;
+
     virtual AABB GetAABB() const override;
+
+    virtual float GetArea() const override
+    {
+        return area;
+    }
 private:
     std::unique_ptr<BVH> bvh;
+    float area;
 };

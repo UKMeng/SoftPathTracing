@@ -10,6 +10,8 @@ Model::Model(const std::filesystem::path &filename)
 
     std::vector<Object*> objs;
 
+    area = 0.f;
+
     for (const auto &shape: result.shapes)
     {
         size_t indexOffset = 0;
@@ -43,12 +45,14 @@ Model::Model(const std::filesystem::path &filename)
                         result.attributes.normals[index.normal_index * 3 + 2]
                     };
                     Object* tri = new Triangle(v0, v1, v2, normal);
+                    area += tri->GetArea();
                     objs.emplace_back(tri);
                     //triangles.emplace_back(v0, v1, v2, normal);
                 }
                 else
                 {
                     Object* tri = new Triangle(v0, v1, v2);
+                    area += tri->GetArea();
                     objs.emplace_back(tri);
                     // triangles.emplace_back(v0, v1, v2);
                 }
@@ -60,18 +64,14 @@ Model::Model(const std::filesystem::path &filename)
     bvh = std::make_unique<BVH>(std::move(objs), 1, BVH::SplitMethod::SAH);
 }
 
+std::optional<HitInfo> Model::Sample(float &pdf, RNG &rng) const
+{
+    return bvh->Sample(pdf, rng);
+}
+
 std::optional<HitInfo> Model::Intersect(const Ray &ray, float tMin, float tMax) const
 {
     std::optional<HitInfo> closetHitInfo = bvh->Intersect(ray, tMin, tMax);
-//    for (const auto& triangle : triangles)
-//    {
-//        auto hitInfo = triangle.Intersect(ray, tMin, tMax);
-//        if (hitInfo.has_value())
-//        {
-//            tMax = hitInfo->t;
-//            closetHitInfo = hitInfo;
-//        }
-//    }
     return closetHitInfo;
 }
 

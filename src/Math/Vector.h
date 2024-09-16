@@ -121,7 +121,7 @@ public:
 
     float Norm() const
     {
-        return x * x + y * y + z * z;
+        return std::sqrt(x * x + y * y + z * z);
     }
 
     static Vec3f Min(const Vec3f& a, const Vec3f& b);

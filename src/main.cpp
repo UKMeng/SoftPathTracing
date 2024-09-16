@@ -24,9 +24,9 @@ int main()
 
     Film film { width, height };
 
-    Sphere sphere { {0, 0, 0}, 1.0f};
-
-    Plane plane { {0, 0, 0}, {0, 1, 0}};
+//    Sphere sphere { {0, 0, 0}, 1.0f};
+//
+//    Plane plane { {0, 0, 0}, {0, 1, 0}};
 
 //    Model model("models/dragon_871k.obj");
 
@@ -77,7 +77,7 @@ int main()
 
 
     PathTracingRenderer pathTracingRenderer { camera, scene };
-    pathTracingRenderer.Render(128, "PT_Re.ppm");
+    pathTracingRenderer.Render(512, "PT_Re.ppm");
 
     return 0;
 }

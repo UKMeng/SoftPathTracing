@@ -66,15 +66,14 @@ Vec3f PathTracingRenderer::CastRay(const Ray &ray, int depth)
     // If depth != 0, return black color
     if (result->material->isEmissive)
     {
-        return result->material->emissive;
-//        if (depth == 0)
-//        {
-//            return result->material->emissive;
-//        }
-//        else
-//        {
-//            return {0, 0, 0};
-//        }
+        if (depth == 0)
+        {
+            return result->material->emissive;
+        }
+        else
+        {
+            return {0, 0, 0};
+        }
     }
 
     // Hit info
@@ -82,20 +81,36 @@ Vec3f PathTracingRenderer::CastRay(const Ray &ray, int depth)
     auto normal = result->normal;
     auto viewDir = -ray.direction;
     Frame hitPosFrame(normal);
+    Vec3f viewDirInLocal = hitPosFrame.GetLocalFromWorld(viewDir);
 
     // Sample light and calculate direct radiance
-//    float pdfLight;
-//    auto sampleLightResult = scene.SampleLight(pdfLight);
-//    if (sampleLightResult.has_value())
-//    {
-//
-//    }
+    float pdfLight;
+    auto sampleLightResult = scene.Sample(pdfLight, rng);
+    if (sampleLightResult.has_value())
+    {
+        Vec3f lightPos = sampleLightResult->hitPos;
+        Vec3f lightNormal = sampleLightResult->normal;
+        Vec3f emit = sampleLightResult->material->emissive;
+        Vec3f lightDir = (lightPos - hitPos).Normalize();
+        Vec3f lightDirInLocal = hitPosFrame.GetLocalFromWorld(lightDir);
+        float distance = (lightPos - hitPos).Norm();
+
+        auto hitTest = scene.Intersect(Ray(hitPos, lightDir));
+        if (hitTest.has_value())
+        {
+            float testDistance = (hitTest->hitPos - hitPos).Norm();
+            if (testDistance - distance >= -0.001) // if the ray is not blocked in the middle way
+            {
+                Vec3f brdf = result->material->BRDF(lightDirInLocal, viewDirInLocal);
+                L_Direct = emit * brdf * lightDirInLocal.y * Dot(-lightDir, lightNormal) / (distance * distance) / pdfLight;
+            }
+        }
+    }
 
     // Sample indirect light and calculate indirect radiance
     // Russian roulette test
     if (rng.Uniform() < P_RR)
     {
-        Vec3f viewDirInLocal = hitPosFrame.GetLocalFromWorld(viewDir);
         Vec4f sample = result->material->Sample(viewDirInLocal, this->rng);
         Vec3f rayDirInLocal = sample.xyz();
         float pdf = sample.w;

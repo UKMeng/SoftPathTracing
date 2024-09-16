@@ -22,8 +22,33 @@ void Scene::AddObject(const Object& object, Material* material, const Vec3f &tra
     m_ObjectList.emplace_back(objectInstance);
 }
 
-std::optional<HitInfo> Scene::SampleLight(float &pdf) const
+std::optional<HitInfo> Scene::Sample(float &pdf, RNG& rng) const
 {
     std::optional<HitInfo> hitInfo {};
+
+    if (m_EmissiveObjectList.empty()) return hitInfo;
+
+    float emitAreaSum = 0.0f;
+    for (const auto& objectInstance: m_EmissiveObjectList)
+    {
+        emitAreaSum += objectInstance->object.GetArea();
+    }
+
+    float p = rng.Uniform() * emitAreaSum;
+    emitAreaSum = 0;
+
+    for (const auto& objectInstance: m_EmissiveObjectList)
+    {
+        emitAreaSum += objectInstance->object.GetArea();
+        if (p <= emitAreaSum)
+        {
+            hitInfo = objectInstance->object.Sample(pdf, rng);
+            hitInfo->hitPos = objectInstance->modelMatrix * Vec4f(hitInfo->hitPos, 1.0f);
+            hitInfo->normal = Normalize((objectInstance->invModelMatrix.Transpose() * Vec4f(hitInfo->normal, 0.0f)).xyz()); // use Normal Matrix
+            hitInfo->material = objectInstance->material;
+            break;
+        }
+    }
+
     return hitInfo;
 }
