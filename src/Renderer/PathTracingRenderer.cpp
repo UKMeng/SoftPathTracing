@@ -5,48 +5,11 @@
 #include "PathTracingRenderer.h"
 #include "Frame.h"
 
-Vec3f PathTracingRenderer::RenderPixel(const Vec2i &pixelCoords)
+Vec3f PathTracingRenderer::RenderPixel(const Vec2i &pixelCoords, const Vec2f& xi)
 {
-    auto ray = camera.GenerateRay(pixelCoords, { rng.Uniform(), rng.Uniform() });
+    auto ray = camera.GenerateRay(pixelCoords, xi);
+    // auto ray = camera.GenerateRay(pixelCoords, {rng.Uniform(), rng.Uniform()});
     return CastRay(ray, 0);
-//    Vec3f beta = {1, 1, 1}; // total albedo
-//    Vec3f radiance = {0, 0, 0};
-//
-//    float q = 0.8f; // Ruassian Roulette
-//
-//    while (true)
-//    {
-//        auto result = scene.Intersect(ray);
-//        if (result.has_value())
-//        {
-//            if (result->material->isEmissive)
-//            {
-//                radiance += beta * result->material->emissive;
-//                break;
-//            }
-//
-//            if (rng.Uniform() > q)
-//            {
-//                break;
-//            }
-//            beta /= q;
-//
-//            if (result->material)
-//            {
-//                Frame frame(result->normal);
-//                Vec3f viewDir = frame.GetLocalFromWorld(-ray.direction);
-//                Vec4f sample = result->material->Sample(viewDir, this->rng);
-//                Vec3f rayDir = sample.xyz();
-//                float pdf = sample.w;
-//                Vec3f brdf = result->material->BRDF(rayDir, viewDir);
-//                beta *= brdf * rayDir.y / pdf;
-//                ray = Ray(result->hitPos, frame.GetWorldFromLocal(rayDir));
-//            }
-//        }
-//        else break;
-//    }
-//
-//    return radiance;
 }
 
 Vec3f PathTracingRenderer::CastRay(const Ray &ray, int depth)
@@ -84,7 +47,7 @@ Vec3f PathTracingRenderer::CastRay(const Ray &ray, int depth)
     Vec3f viewDirInLocal = hitPosFrame.GetLocalFromWorld(viewDir);
 
     // Sample light and calculate direct radiance
-    float pdfLight;
+    float pdfLight = 0.0f;
     auto sampleLightResult = scene.Sample(pdfLight, rng);
     if (sampleLightResult.has_value())
     {
@@ -109,20 +72,28 @@ Vec3f PathTracingRenderer::CastRay(const Ray &ray, int depth)
 
     // Sample indirect light and calculate indirect radiance
     // Russian roulette test
+    float pdfBRDF = 0.0f;
     if (rng.Uniform() < P_RR)
     {
         Vec4f sample = result->material->Sample(viewDirInLocal, this->rng);
         Vec3f rayDirInLocal = sample.xyz();
-        float pdf = sample.w;
+        pdfBRDF = sample.w;
         Vec3f Li = CastRay(Ray(hitPos, hitPosFrame.GetWorldFromLocal(rayDirInLocal)), depth + 1);
 
         // If the ray hit non-emitting object
         if (Li.Norm() != 0.0)
         {
             Vec3f brdf = result->material->BRDF(rayDirInLocal, viewDirInLocal);
-            L_Indirect = Li * brdf * rayDirInLocal.y / pdf / P_RR;
+            L_Indirect = Li * brdf * rayDirInLocal.y / pdfBRDF / P_RR;
         }
     }
+
+    // MIS
+//    float pdfDirect = pdfLight;
+//    float pdfIndirect = pdfBRDF;
+//    float wDirect = pdfDirect / (pdfDirect + pdfIndirect);
+//    float wIndirect = pdfIndirect / (pdfDirect + pdfIndirect);
+//    return L_Direct * wDirect + L_Indirect * wIndirect;
 
     return L_Indirect + L_Direct;
 }

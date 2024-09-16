@@ -21,7 +21,8 @@ void Renderer::Render(size_t spp, const std::filesystem::path &fileName)
         {
             for (int i = 0; i < increase; ++i)
             {
-                film.AddSample(x, y, RenderPixel({x, y}));
+                Vec2f xi = rng.Hammersley(currentSpp + i, spp);
+                film.AddSample(x, y, RenderPixel({x, y}, xi));
             }
             progress.Update(increase);
         });

@@ -5,7 +5,7 @@
 #include "DebugRenderer.h"
 #include "ColorRGB.h"
 
-Vec3f DebugBTCRenderer::RenderPixel(const Vec2i &pixelCoords)
+Vec3f DebugBTCRenderer::RenderPixel(const Vec2i &pixelCoords, const Vec2f& xi)
 {
 #ifdef DEBUG
     auto ray = camera.GenerateRay(pixelCoords);
@@ -16,7 +16,7 @@ Vec3f DebugBTCRenderer::RenderPixel(const Vec2i &pixelCoords)
 #endif
 }
 
-Vec3f DebugTTCRenderer::RenderPixel(const Vec2i &pixelCoords)
+Vec3f DebugTTCRenderer::RenderPixel(const Vec2i &pixelCoords, const Vec2f& xi)
 {
 #ifdef DEBUG
     auto ray = camera.GenerateRay(pixelCoords);

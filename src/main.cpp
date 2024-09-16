@@ -77,7 +77,7 @@ int main()
 
 
     PathTracingRenderer pathTracingRenderer { camera, scene };
-    pathTracingRenderer.Render(512, "PT_Re.ppm");
+    pathTracingRenderer.Render(8, "PT_8SPP.ppm");
 
     return 0;
 }
