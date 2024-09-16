@@ -15,109 +15,121 @@
 #include "PathTracingRenderer.h"
 #include "SpecularMaterial.h"
 #include "LambertianMaterial.h"
+#include "MicroFacetMaterial.h"
 
 int main()
 {
-    const int width = 192 * 4;
+    const int width = 108 * 4;
     const int height = 108 * 4;
 
     Film film { width, height };
-
-    Camera camera { film, { -7, 5, -7 }, { 0, 0, 0 }, 45};
 
     Sphere sphere { {0, 0, 0}, 1.0f};
 
     Plane plane { {0, 0, 0}, {0, 1, 0}};
 
-    Model model("models/dragon_871k.obj");
+//    Model model("models/dragon_871k.obj");
 
     Scene scene {};
 
-    RNG rng { 1234 };
-    for (int i = 0; i < 100; i ++) {
-        Vec3f random_pos {
-                rng.Uniform() * 10 - 5,
-                rng.Uniform() * 2,
-                rng.Uniform() * 10 - 5,
-        };
-        float u = rng.Uniform();
-        Material* material;
-        if (u < 0.9) {
-            if (rng.Uniform() > 0.5)
-            {
-                material = new SpecularMaterial({ 0.5, 0.5, 0.5 });
-            }
-            else
-            {
-                material = new LambertianMaterial({0.5, 0.5, 0.5});
-            }
-            scene.AddObject(
-                    model,
-                    material,
-                    random_pos,
-                    { rng.Uniform() * 360, rng.Uniform() * 360, rng.Uniform() * 360 },
-                    { 1, 1, 1 }
+    Model floor("models/cornellbox/floor.obj");
+    Model left("models/cornellbox/left.obj");
+    Model right("models/cornellbox/right.obj");
+    Model light("models/cornellbox/light.obj");
+    Model shortbox("models/cornellbox/shortbox.obj");
+    Model tallbox("models/cornellbox/tallbox.obj");
 
-            );
-        } else if (u < 0.95) {
-            material = new SpecularMaterial({ rng.Uniform(), rng.Uniform(), rng.Uniform() });
-            scene.AddObject(
-                    sphere,
-                    material,
-                    random_pos,
-                    { 0, 0, 0},
-                    { 0.4, 0.4, 0.4 }
-            );
-        } else {
-            material = new LambertianMaterial( { 0, 0, 0 });
-            material->emissive = { rng.Uniform() * 4, rng.Uniform() * 4, rng.Uniform() * 4 };
-            random_pos.y += 4;
-            scene.AddObject(
-                    sphere,
-                    material,
-                    random_pos
-            );
-        }
-    }
-    scene.AddObject(plane, new LambertianMaterial(ColorRGB(120, 204, 157)), { 0, -0.5, 0 });
+    Camera camera { film, { 270, 270, -750 }, { 270, 270, 270 }, 45};
+
+    Material* lightMaterial = new LambertianMaterial({0, 0, 0});
+    lightMaterial->SetEmissive(8.0f * Vec3f(0.747f+0.058f, 0.747f+0.258f, 0.747f) + 15.6f * Vec3f(0.740f+0.287f,0.740f+0.160f,0.740f) + 18.4f *Vec3f(0.737f+0.642f,0.737f+0.159f,0.737f));
+
+    Material* white = new LambertianMaterial({0.75, 0.71, 0.68});
+
+    scene.AddObject(floor, white);
+    scene.AddObject(left, new LambertianMaterial{{0.14f, 0.45f, 0.091f}});
+    scene.AddObject(right, new LambertianMaterial{{0.63f, 0.065f, 0.05f}});
+    scene.AddObject(shortbox, white);
+    scene.AddObject(tallbox, white);
+    scene.AddObject(light, lightMaterial);
+
+//    scene.AddObject(
+//        model,
+////        new LambertianMaterial{{ColorRGB(153,136,204)}},
+//        new MicroFacetMaterial{{ColorRGB(153,136,204)}, 0.2, 0.5},
+//        {0, 0.0, 0},
+//        {0, 0, 0},
+//        {3, 3, 3}
+//        );
+
+
+//    scene.AddObject(plane, lightMaterial, { 0, 2, 0});
 
     scene.BuildBVH();
 
-//    Camera camera { film, { -3.6, 0, 0 }, { 0, 0, 0 }, 45};
-//    scene.AddObject(model, {ColorRGB(202,159,117)}, {0, 0, 0}, {0, 0, 0}, {1, 3, 2});
-//    scene.AddObject(
-//            sphere,
-//            {{1, 1, 1}, false, ColorRGB(255, 128, 128)},
-//            {0, 0.0, 2.5}
-//            );
+//    NormalRenderer normalRenderer { camera, scene };
+//    normalRenderer.Render(1, "Normal.ppm");
 //
-//    scene.AddObject(
-//            sphere,
-//            {{1, 1, 1}, false, ColorRGB(128, 128, 255)},
-//            {0, 0.0, -2.5}
-//            );
-//
-//    scene.AddObject(
-//            sphere,
-//            {{1, 1, 1}, true },
-//            {3, 0.5, -2}
-//            );
-//
-//    scene.AddObject(plane, {ColorRGB(120, 204, 157)}, { 0, -0.5, 0});
-//
-//    scene.BuildBVH();
-
-    NormalRenderer normalRenderer { camera, scene };
-    normalRenderer.Render(1, "Normal.ppm");
-
-    DebugBTCRenderer debugBTCRenderer {camera, scene };
-    debugBTCRenderer.Render(1, "DebugBTC.ppm");
-    DebugTTCRenderer debugTTCRenderer {camera, scene };
-    debugTTCRenderer.Render(1, "DebugTTC.ppm");
+//    DebugBTCRenderer debugBTCRenderer {camera, scene };
+//    debugBTCRenderer.Render(1, "DebugBTC.ppm");
+//    DebugTTCRenderer debugTTCRenderer {camera, scene };
+//    debugTTCRenderer.Render(1, "DebugTTC.ppm");
 
 
     PathTracingRenderer pathTracingRenderer { camera, scene };
-    pathTracingRenderer.Render(128, "PT_Cos.ppm");
+    pathTracingRenderer.Render(1024, "PT_Re.ppm");
 
     return 0;
 }
+
+// 100 objs scene
+//Camera camera { film, { -7, 5, -7 }, { 0, 0, 0 }, 45};
+//RNG rng { 1234 };
+//for (int i = 0; i < 100; i ++) {
+//Vec3f random_pos {
+//        rng.Uniform() * 10 - 5,
+//        rng.Uniform() * 2,
+//        rng.Uniform() * 10 - 5,
+//};
+//float u = rng.Uniform();
+//Material* material;
+//if (u < 0.9) {
+//if (rng.Uniform() > 0.5)
+//{
+//material = new SpecularMaterial({ 0.5, 0.5, 0.5 });
+//}
+//else
+//{
+//material = new LambertianMaterial({0.5, 0.5, 0.5});
+//}
+//scene.AddObject(
+//        model,
+//        material,
+//        random_pos,
+//{ rng.Uniform() * 360, rng.Uniform() * 360, rng.Uniform() * 360 },
+//{ 1, 1, 1 }
+//
+//);
+//} else if (u < 0.95) {
+//material = new SpecularMaterial({ rng.Uniform(), rng.Uniform(), rng.Uniform() });
+//scene.AddObject(
+//        sphere,
+//        material,
+//        random_pos,
+//{ 0, 0, 0},
+//{ 0.4, 0.4, 0.4 }
+//);
+//} else {
+//material = new LambertianMaterial( { 0, 0, 0 });
+//material->SetEmissive({ rng.Uniform() * 4, rng.Uniform() * 4, rng.Uniform() * 4 });
+//random_pos.y += 4;
+//scene.AddObject(
+//        sphere,
+//        material,
+//        random_pos
+//);
+//}
+//}
+//scene.AddObject(plane, new LambertianMaterial(ColorRGB(120, 204, 157)), { 0, -0.5, 0 });
+//
+//scene.BuildBVH();
