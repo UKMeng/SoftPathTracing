@@ -14,5 +14,16 @@ void Scene::AddObject(const Object& object, Material* material, const Vec3f &tra
     // Model Matrix - from model space to world space
     Mat4f modelMatrix = Mat4f::Translate(translate) * Mat4f::Rotate(rotate) * Mat4f::Scale(scale);
     Mat4f invModelMatrix = modelMatrix.Inverse();
-    m_ObjectList.emplace_back(new ObjectInstance(object, material, modelMatrix, invModelMatrix));
+    auto* objectInstance = new ObjectInstance(object, material, modelMatrix, invModelMatrix);
+    if (material->isEmissive)
+    {
+        m_EmissiveObjectList.emplace_back(objectInstance);
+    }
+    m_ObjectList.emplace_back(objectInstance);
+}
+
+std::optional<HitInfo> Scene::SampleLight(float &pdf) const
+{
+    std::optional<HitInfo> hitInfo {};
+    return hitInfo;
 }

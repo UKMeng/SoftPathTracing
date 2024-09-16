@@ -12,5 +12,8 @@ public:
     PathTracingRenderer(Camera& camera, Scene& scene) : Renderer(camera, scene) {}
 private:
     Vec3f RenderPixel(const Vec2i& pixelCoords) override;
-//    Vec3f Shade(const Ray& ray, int depth);
+    Vec3f CastRay(const Ray& ray, int depth);
+
+    // Russian Roulette
+    float P_RR = 0.8f;
 };

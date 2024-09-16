@@ -19,6 +19,8 @@ public:
                    const Vec3f& rotate = {0.f, 0.f, 0.f},
                    const Vec3f& scale = {1.f, 1.f, 1.f});
 
+    std::optional<HitInfo> SampleLight(float& pdf) const;
+
     void BuildBVH()
     {
         bvh = std::make_unique<SceneBVH>(std::move(m_ObjectList));
@@ -30,5 +32,6 @@ public:
     }
 private:
     std::vector<ObjectInstance*> m_ObjectList;
+    std::vector<ObjectInstance*> m_EmissiveObjectList;
     std::unique_ptr<SceneBVH> bvh;
 };
