@@ -24,6 +24,12 @@ public:
     /// \return a new ray direction (vec4f.xyz) in the local coordinate system and the pdf(vec4f.w) of the sample
     virtual Vec4f Sample(const Vec3f& wo, const Vec2f& xi) = 0;
 
+    /// Get the PDF of the BRDF
+    /// \param wi ray direction in the local coordinate system (from hit point)
+    /// \param wo view direction in the local coordinate system (from hit point)
+    /// \return the PDF value
+    virtual float PDF(const Vec3f& wi, const Vec3f& wo) = 0;
+
     inline void SetEmissive(Vec3f&& emissive)
     {
         isEmissive = true;

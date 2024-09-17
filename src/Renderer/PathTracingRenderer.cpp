@@ -11,7 +11,7 @@ Vec3f PathTracingRenderer::RenderPixel(const Vec2i &pixelCoords, const Vec2f& xi
     // auto ray = camera.GenerateRay(pixelCoords, {rng.Uniform(), rng.Uniform()});
     m_Spp = currentSpp;
     m_PixelCoords = pixelCoords;
-    return CastRay(ray, 0);
+    return MISCastRay(ray, 0);
 }
 
 Vec3f PathTracingRenderer::RRCastRay(const Ray &ray, int depth)
@@ -157,7 +157,6 @@ Vec3f PathTracingRenderer::CastRay(const Ray &ray, int depth)
     }
 
     // Sample indirect light and calculate indirect radiance
-    // Russian roulette test
     float pdfBRDF = 0.0f;
     Vec2f xi = RNG::SobolVec2(m_Spp, depth);
     xi = RNG::CranleyPattersonRotation(m_PixelCoords, xi);
@@ -231,15 +230,18 @@ Vec3f PathTracingRenderer::MISCastRay(const Ray &ray, int depth)
             if (testDistance - distance >= -0.001) // if the ray is not blocked in the middle way
             {
                 Vec3f brdf = result->material->BRDF(lightDirInLocal, viewDirInLocal);
-                L_Direct = emit * brdf * lightDirInLocal.y * Dot(-lightDir, lightNormal) / (distance * distance) / pdfLight;
+                float pdfBRDF = result->material->PDF(lightDirInLocal, viewDirInLocal);
+                float misWeight = MISMixWeight(pdfLight, pdfBRDF);
+                L_Direct = misWeight * emit * brdf * lightDirInLocal.y * Dot(-lightDir, lightNormal) / (distance * distance) / pdfLight;
             }
         }
     }
 
     // Sample indirect light and calculate indirect radiance
-    // Russian roulette test
     float pdfBRDF = 0.0f;
-    Vec4f sample = result->material->Sample(viewDirInLocal, RNG::SobolVec2(m_Spp, depth));
+    Vec2f xi = RNG::SobolVec2(m_Spp, depth);
+    xi = RNG::CranleyPattersonRotation(m_PixelCoords, xi);
+    Vec4f sample = result->material->Sample(viewDirInLocal, xi);
     Vec3f rayDirInLocal = sample.xyz();
     pdfBRDF = sample.w;
     Vec3f Li = MISCastRay(Ray(hitPos, hitPosFrame.GetWorldFromLocal(rayDirInLocal)), depth + 1);

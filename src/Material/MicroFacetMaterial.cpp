@@ -53,3 +53,12 @@ float MicroFacetMaterial::DistributionGGX(float NdotH)
     float d = (NdotH * a2 - NdotH) * NdotH + 1.0f;
     return a2 / (M_PI * d * d);
 }
+
+float MicroFacetMaterial::PDF(const Vec3f &wi, const Vec3f &wo)
+{
+    float a2 = roughness * roughness;
+    float CosTheta = wi.y;
+    float d = (a2 * CosTheta - CosTheta) * CosTheta + 1;
+    float D = a2 / (M_PI * d * d);
+    return D * CosTheta;
+}

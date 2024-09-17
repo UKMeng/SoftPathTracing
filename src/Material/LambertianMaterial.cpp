@@ -13,3 +13,8 @@ Vec4f LambertianMaterial::Sample(const Vec3f& wo, const Vec2f& xi)
 {
     return RNG::CosineSampleHemisphere(xi);
 }
+
+float LambertianMaterial::PDF(const Vec3f &wi, const Vec3f &wo)
+{
+    return wi.y * INV_PI;
+}

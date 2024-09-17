@@ -47,10 +47,10 @@ int main()
 
     //scene.AddObject(smallLightBall, lightMaterial, {0, 0.5, -2});
     scene.AddObject(areaLight, lightMaterial, {0, 0, -2});
-    scene.AddObject(midLightBall, lightMaterial, {0, 0.4, 2});
+    scene.AddObject(smallLightBall, lightMaterial, {0, 0.4, 2});
     scene.AddObject(plane,
 //                    new LambertianMaterial{{ColorRGB(153,136,204)}},
-                    new MicroFacetMaterial{{ColorRGB(153,136,204)}, 0.8, 0.95},
+                    new MicroFacetMaterial{{ColorRGB(153,136,204)}, 0.1, 0.95},
                     {0, -0.5, 0});
 
     scene.AddObject(
@@ -77,7 +77,7 @@ int main()
 
 
     PathTracingRenderer pathTracingRenderer { camera, scene };
-    pathTracingRenderer.Render(128, "PT_test.ppm");
+    pathTracingRenderer.Render(10240, "PT_MIS_test.ppm");
 
     return 0;
 }

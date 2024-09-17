@@ -13,6 +13,7 @@ public:
 
     virtual Vec3f BRDF(const Vec3f& wi, const Vec3f& wo) override;
     virtual Vec4f Sample(const Vec3f& wo, const Vec2f& xi) override;
+    virtual float PDF(const Vec3f& wi, const Vec3f& wo) override;
 private:
     Vec3f albedo;
 };
