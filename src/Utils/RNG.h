@@ -102,6 +102,35 @@ public:
         return float(result) * (1.0f/float(0xFFFFFFFFU));
     }
 
+    static uint32_t wang_hash(uint32_t seed) {
+        seed = uint32_t(seed ^ uint32_t(61)) ^ uint32_t(seed >> uint32_t(16));
+        seed *= uint32_t(9);
+        seed = seed ^ (seed >> 4);
+        seed *= uint32_t(0x27d4eb2d);
+        seed = seed ^ (seed >> 15);
+        return seed;
+    }
+
+    static Vec2f CranleyPattersonRotation(const Vec2i& pixelCoords, Vec2f& p) {
+        uint32_t pseed = uint32_t(
+                uint32_t((pixelCoords.x)) * uint32_t(1973) +
+                uint32_t((pixelCoords.y)) * uint32_t(9277) +
+                uint32_t(114514/1919) * uint32_t(26699)) | uint32_t(1);
+
+        float u = float(wang_hash(pseed)) / 4294967296.0;
+        float v = float(wang_hash(pseed)) / 4294967296.0;
+
+        p.x += u;
+        if(p.x>1) p.x -= 1;
+        if(p.x<0) p.x += 1;
+
+        p.y += v;
+        if(p.y>1) p.y -= 1;
+        if(p.y<0) p.y += 1;
+
+        return p;
+    }
+
     // 生成第 i 帧的第 b 次反弹需要的二维随机向量
     static Vec2f SobolVec2(uint32_t i, uint32_t b) {
         float u = sobol(b*2, grayCode(i));

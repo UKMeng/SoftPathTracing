@@ -15,6 +15,7 @@ private:
 
     Vec3f CastRay(const Ray &ray, int depth); // use max depth to terminate the ray
     Vec3f RRCastRay(const Ray& ray, int depth); // use Russian Roulette to terminate the ray
+    Vec3f MISCastRay(const Ray& ray, int depth); // use Multiple Importance Sampling
 
     // Russian Roulette
     float P_RR = 0.8f;
@@ -22,4 +23,5 @@ private:
     // Max depth
     int maxDepth = 4;
     size_t m_Spp;
+    Vec2i m_PixelCoords;
 };
