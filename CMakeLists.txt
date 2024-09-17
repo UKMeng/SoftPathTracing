@@ -13,4 +13,4 @@ target_include_directories(SoftPathTracing PUBLIC src/Math src/Utils src/Scene s
 
 target_link_libraries(SoftPathTracing rapidobj)
 
-target_compile_definitions(SoftPathTracing PUBLIC DEBUG)
+#target_compile_definitions(SoftPathTracing PUBLIC DEBUG)

@@ -8,8 +8,8 @@ Plane::Plane(const Vec3f &centroid, const Vec3f &normal, const Vec2f& size)
     : centroid(centroid), normal(Normalize(normal)), size(size)
 {
     Vec3f up = Abs(normal.y) < 0.99 ? Vec3f(0, 1, 0) : Vec3f(1, 0, 0);
-    Vec3f u = Normalize(Cross(up, normal));
-    Vec3f v = Normalize(Cross(normal, u));
+    u = Normalize(Cross(up, normal));
+    v = Normalize(Cross(normal, u));
 
     Vec3f p1 = centroid + u * size.x / 2 + v * size.y / 2;
     Vec3f p2 = centroid - u * size.x / 2 + v * size.y / 2;
@@ -38,6 +38,10 @@ std::optional<HitInfo> Plane::Intersect(const Ray &ray, float tMin, float tMax) 
 
 std::optional<HitInfo> Plane::Sample(float &pdf, RNG &rng) const
 {
-    // TODO
-    return std::optional<HitInfo>();
+    pdf = 1.0f / area;
+
+    float x = (rng.Uniform() - 0.5f) * size.x;
+    float y = (rng.Uniform() - 0.5f) * size.y;
+
+    return HitInfo { -1, centroid + u * x + v * y, normal };
 }

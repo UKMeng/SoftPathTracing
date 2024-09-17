@@ -21,5 +21,6 @@ private:
 protected:
     Camera& camera;
     Scene& scene;
+    size_t spp;
     RNG rng {};
 };

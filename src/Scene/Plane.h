@@ -12,6 +12,7 @@ public:
     Vec2f size;
     AABB boundingBox;
     float area;
+    Vec3f u, v;
 
      Plane(const Vec3f& centroid, const Vec3f& normal, const Vec2f& size);
     // Plane(const Vec3f& centroid, const Vec3f& normal);

@@ -31,6 +31,9 @@ std::optional<HitInfo> Sphere::Intersect(const Ray& ray, float tMin, float tMax)
 
 std::optional<HitInfo> Sphere::Sample(float &pdf, RNG &rng) const
 {
-    // TODO
-    return std::optional<HitInfo>();
+    pdf = 1.0f / area;
+
+    float theta = 2.0 * M_PI * rng.Uniform(), phi = M_PI * rng.Uniform();
+    Vec3f dir = Vec3f(sin(phi) * cos(theta), cos(phi), sin(phi) * sin(theta));
+    return HitInfo { -1, center + radius * dir, dir };
 }

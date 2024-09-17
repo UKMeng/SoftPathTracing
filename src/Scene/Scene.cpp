@@ -28,6 +28,7 @@ std::optional<HitInfo> Scene::Sample(float &pdf, RNG& rng) const
 
     if (m_EmissiveObjectList.empty()) return hitInfo;
 
+    // TODO(BUG FIX): area should be related to scaling matrix
     float emitAreaSum = 0.0f;
     for (const auto& objectInstance: m_EmissiveObjectList)
     {
