@@ -22,7 +22,7 @@ public:
     /// \param wo view direction in the local coordinate system
     /// \param rng random number generator
     /// \return a new ray direction (vec4f.xyz) in the local coordinate system and the pdf(vec4f.w) of the sample
-    virtual Vec4f Sample(const Vec3f& wo, RNG& rng) = 0;
+    virtual Vec4f Sample(const Vec3f& wo, const Vec2f& xi) = 0;
 
     inline void SetEmissive(Vec3f&& emissive)
     {

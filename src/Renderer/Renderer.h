@@ -16,11 +16,11 @@ public:
     virtual ~Renderer() = default;
     void Render(size_t spp, const std::filesystem::path& fileName);
 private:
-    virtual Vec3f RenderPixel(const Vec2i& pixelCoords, const Vec2f& xi) = 0;
+    virtual Vec3f RenderPixel(const Vec2i& pixelCoords, const Vec2f& xi, const size_t& currentSpp) = 0;
 
 protected:
     Camera& camera;
     Scene& scene;
-    size_t spp;
+//    size_t spp;
     RNG rng {};
 };

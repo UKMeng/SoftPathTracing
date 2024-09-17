@@ -4,7 +4,7 @@
 
 #include "NormalRenderer.h"
 
-Vec3f NormalRenderer::RenderPixel(const Vec2i &pixelCoords, const Vec2f& xi)
+Vec3f NormalRenderer::RenderPixel(const Vec2i &pixelCoords, const Vec2f& xi, const size_t& currentSpp)
 {
     auto ray = camera.GenerateRay(pixelCoords);
     auto result = scene.Intersect(ray);

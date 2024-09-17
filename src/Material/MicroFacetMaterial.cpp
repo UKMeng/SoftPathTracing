@@ -23,9 +23,9 @@ Vec3f MicroFacetMaterial::BRDF(const Vec3f &wi, const Vec3f &wo)
     return numerator / denominator;
 }
 
-Vec4f MicroFacetMaterial::Sample(const Vec3f &wo, RNG &rng)
+Vec4f MicroFacetMaterial::Sample(const Vec3f &wo, const Vec2f& xi)
 {
-    return rng.ImportanceSampleGGX({rng.Uniform(), rng.Uniform()}, roughness * roughness);
+    return RNG::ImportanceSampleGGX(xi, roughness * roughness);
 }
 
 float MicroFacetMaterial::GeometrySchlickGGX(float NdotV)

@@ -12,7 +12,7 @@ public:
     LambertianMaterial(const Vec3f& albedo) : albedo(albedo) {}
 
     virtual Vec3f BRDF(const Vec3f& wi, const Vec3f& wo) override;
-    virtual Vec4f Sample(const Vec3f& wo, RNG& rng) override;
+    virtual Vec4f Sample(const Vec3f& wo, const Vec2f& xi) override;
 private:
     Vec3f albedo;
 };

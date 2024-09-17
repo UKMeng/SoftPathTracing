@@ -11,5 +11,5 @@ class NormalRenderer: public Renderer
 public:
     NormalRenderer(Camera& camera, Scene& scene) : Renderer(camera, scene) {}
 private:
-    Vec3f RenderPixel(const Vec2i& pixelCoords, const Vec2f& xi) override;
+    Vec3f RenderPixel(const Vec2i& pixelCoords, const Vec2f& xi, const size_t& currentSpp) override;
 };

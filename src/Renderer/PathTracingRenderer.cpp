@@ -5,11 +5,12 @@
 #include "PathTracingRenderer.h"
 #include "Frame.h"
 
-Vec3f PathTracingRenderer::RenderPixel(const Vec2i &pixelCoords, const Vec2f& xi)
+Vec3f PathTracingRenderer::RenderPixel(const Vec2i &pixelCoords, const Vec2f& xi, const size_t& currentSpp)
 {
     auto ray = camera.GenerateRay(pixelCoords, xi);
     // auto ray = camera.GenerateRay(pixelCoords, {rng.Uniform(), rng.Uniform()});
-    return RRCastRay(ray, 0);
+    m_Spp = currentSpp;
+    return CastRay(ray, 0);
 }
 
 Vec3f PathTracingRenderer::RRCastRay(const Ray &ray, int depth)
@@ -77,7 +78,7 @@ Vec3f PathTracingRenderer::RRCastRay(const Ray &ray, int depth)
     float pdfBRDF = 0.0f;
     if (rng.Uniform() < P_RR)
     {
-        Vec4f sample = result->material->Sample(viewDirInLocal, this->rng);
+        Vec4f sample = result->material->Sample(viewDirInLocal, {rng.Uniform(), rng.Uniform()});
         Vec3f rayDirInLocal = sample.xyz();
         pdfBRDF = sample.w;
         Vec3f Li = RRCastRay(Ray(hitPos, hitPosFrame.GetWorldFromLocal(rayDirInLocal)), depth + 1);
@@ -157,7 +158,7 @@ Vec3f PathTracingRenderer::CastRay(const Ray &ray, int depth)
     // Sample indirect light and calculate indirect radiance
     // Russian roulette test
     float pdfBRDF = 0.0f;
-    Vec4f sample = result->material->Sample(viewDirInLocal, this->rng);
+    Vec4f sample = result->material->Sample(viewDirInLocal, RNG::SobolVec2(m_Spp, depth));
     Vec3f rayDirInLocal = sample.xyz();
     pdfBRDF = sample.w;
     Vec3f Li = CastRay(Ray(hitPos, hitPosFrame.GetWorldFromLocal(rayDirInLocal)), depth + 1);

@@ -11,7 +11,7 @@ class PathTracingRenderer : public Renderer
 public:
     PathTracingRenderer(Camera& camera, Scene& scene) : Renderer(camera, scene) {}
 private:
-    Vec3f RenderPixel(const Vec2i& pixelCoords, const Vec2f& xi) override;
+    Vec3f RenderPixel(const Vec2i& pixelCoords, const Vec2f& xi, const size_t& currentSpp) override;
 
     Vec3f CastRay(const Ray &ray, int depth); // use max depth to terminate the ray
     Vec3f RRCastRay(const Ray& ray, int depth); // use Russian Roulette to terminate the ray
@@ -21,4 +21,5 @@ private:
 
     // Max depth
     int maxDepth = 4;
+    size_t m_Spp;
 };

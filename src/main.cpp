@@ -19,8 +19,8 @@
 
 int main()
 {
-    const int width = 1920;
-    const int height = 1080;
+    const int width = 192 * 4;
+    const int height = 108 * 4;
 
     Film film { width, height };
 
@@ -38,17 +38,19 @@ int main()
 
     Scene scene {};
 
-    Camera camera { film, { -3, 0, 0 }, { 0, 0, 0 }, 45};
+    Camera camera { film, { -3, 1, 0 }, { 0, 0, 0 }, 45};
 
     Material* lightMaterial = new LambertianMaterial({1, 1, 1});
     lightMaterial->SetEmissive(8.0f * Vec3f(0.747f+0.058f, 0.747f+0.258f, 0.747f) + 15.6f * Vec3f(0.740f+0.287f,0.740f+0.160f,0.740f) + 18.4f *Vec3f(0.737f+0.642f,0.737f+0.159f,0.737f));
+//    lightMaterial->SetEmissive({5, 5, 5});
+
 
     //scene.AddObject(smallLightBall, lightMaterial, {0, 0.5, -2});
     scene.AddObject(areaLight, lightMaterial, {0, 0, -2});
     scene.AddObject(midLightBall, lightMaterial, {0, 0.4, 2});
     scene.AddObject(plane,
 //                    new LambertianMaterial{{ColorRGB(153,136,204)}},
-                    new MicroFacetMaterial{{ColorRGB(153,136,204)}, 0.5, 0.5},
+                    new MicroFacetMaterial{{ColorRGB(153,136,204)}, 0.8, 0.95},
                     {0, -0.5, 0});
 
     scene.AddObject(
@@ -75,7 +77,7 @@ int main()
 
 
     PathTracingRenderer pathTracingRenderer { camera, scene };
-    pathTracingRenderer.Render(512, "PT_test.ppm");
+    pathTracingRenderer.Render(128, "PT_test.ppm");
 
     return 0;
 }

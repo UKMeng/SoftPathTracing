@@ -9,7 +9,7 @@ Vec3f LambertianMaterial::BRDF(const Vec3f &wi, const Vec3f &wo)
     return albedo * INV_PI;
 }
 
-Vec4f LambertianMaterial::Sample(const Vec3f& wo, RNG& rng)
+Vec4f LambertianMaterial::Sample(const Vec3f& wo, const Vec2f& xi)
 {
-    return rng.CosineSampleHemisphere( { rng.Uniform(), rng.Uniform() });
+    return RNG::CosineSampleHemisphere(xi);
 }
