@@ -18,32 +18,28 @@ void Scene::AddObject(const Object& object, Material* material, const Vec3f &tra
     if (material->isEmissive)
     {
         m_EmissiveObjectList.emplace_back(objectInstance);
+        m_EmissiveArea += object.GetArea();
     }
     m_ObjectList.emplace_back(objectInstance);
 }
 
-std::optional<HitInfo> Scene::Sample(float &pdf, RNG& rng) const
+std::optional<HitInfo> Scene::Sample(RNG& rng) const
 {
     std::optional<HitInfo> hitInfo {};
 
     if (m_EmissiveObjectList.empty()) return hitInfo;
 
     // TODO(BUG FIX): area should be related to scaling matrix
-    float emitAreaSum = 0.0f;
-    for (const auto& objectInstance: m_EmissiveObjectList)
-    {
-        emitAreaSum += objectInstance->object.GetArea();
-    }
 
-    float p = rng.Uniform() * emitAreaSum;
-    emitAreaSum = 0;
+    float p = rng.Uniform() * m_EmissiveArea;
+    float emitAreaSum = 0.0f;
 
     for (const auto& objectInstance: m_EmissiveObjectList)
     {
         emitAreaSum += objectInstance->object.GetArea();
         if (p <= emitAreaSum)
         {
-            hitInfo = objectInstance->object.Sample(pdf, rng);
+            hitInfo = objectInstance->object.Sample(rng);
             hitInfo->hitPos = objectInstance->modelMatrix * Vec4f(hitInfo->hitPos, 1.0f);
             hitInfo->normal = Normalize((objectInstance->invModelMatrix.Transpose() * Vec4f(hitInfo->normal, 0.0f)).xyz()); // use Normal Matrix
             hitInfo->material = objectInstance->material;

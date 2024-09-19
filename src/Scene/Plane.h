@@ -19,7 +19,7 @@ public:
 
     virtual std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const override;
 
-    virtual std::optional<HitInfo> Sample(float& pdf, RNG& rng) const override;
+    virtual std::optional<HitInfo> Sample(RNG& rng) const override;
 
     virtual AABB GetAABB() const override
     {

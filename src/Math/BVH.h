@@ -31,6 +31,7 @@ struct BVHTreeNode
 struct BVHNode
 {
     AABB bounds;
+    float area;
     union
     {
         int objectIndex;
@@ -38,7 +39,6 @@ struct BVHNode
     };
     uint16_t objectCount;
     uint8_t splitAxis;
-    float area;
 };
 
 struct BVHState
@@ -96,7 +96,7 @@ public:
 
     std::optional<HitInfo> Intersect(const Ray& ray, float tMin, float tMax) const;
 
-    std::optional<HitInfo> Sample(float& pdf, RNG& rng);
+    std::optional<HitInfo> Sample(RNG& rng);
 
     AABB GetAABB() const
     {

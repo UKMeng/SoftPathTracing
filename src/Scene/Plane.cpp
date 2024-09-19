@@ -36,10 +36,8 @@ std::optional<HitInfo> Plane::Intersect(const Ray &ray, float tMin, float tMax) 
     return {};
 }
 
-std::optional<HitInfo> Plane::Sample(float &pdf, RNG &rng) const
+std::optional<HitInfo> Plane::Sample(RNG &rng) const
 {
-    pdf = 1.0f / area;
-
     float x = (rng.Uniform() - 0.5f) * size.x;
     float y = (rng.Uniform() - 0.5f) * size.y;
 

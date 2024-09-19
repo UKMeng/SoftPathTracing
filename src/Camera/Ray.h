@@ -7,6 +7,8 @@
 #include "MyMath.h"
 #include "Material.h"
 
+struct ObjectInstance;
+
 struct Ray
 {
     Vec3f origin, direction, directionInv;
@@ -34,4 +36,5 @@ struct HitInfo
     Vec3f hitPos;
     Vec3f normal;
     Material* material = nullptr;
+    ObjectInstance* object = nullptr;
 };

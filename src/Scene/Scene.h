@@ -19,7 +19,7 @@ public:
                    const Vec3f& rotate = {0.f, 0.f, 0.f},
                    const Vec3f& scale = {1.f, 1.f, 1.f});
 
-    virtual std::optional<HitInfo> Sample(float& pdf, RNG& rng) const;
+    virtual std::optional<HitInfo> Sample(RNG& rng) const;
 
     void BuildBVH()
     {
@@ -31,13 +31,14 @@ public:
         return bvh->GetAABB();
     }
 
+    // return sum of emissive object area
     virtual float GetArea() const override
     {
-        // TODO: may be something else
-        return -1.f;
+        return m_EmissiveArea;
     }
 private:
     std::vector<ObjectInstance*> m_ObjectList;
     std::vector<ObjectInstance*> m_EmissiveObjectList;
     std::unique_ptr<SceneBVH> bvh;
+    float m_EmissiveArea = 0.0f;
 };

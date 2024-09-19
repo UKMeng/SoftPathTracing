@@ -64,9 +64,9 @@ Model::Model(const std::filesystem::path &filename)
     bvh = std::make_unique<BVH>(std::move(objs), 1, BVH::SplitMethod::SAH);
 }
 
-std::optional<HitInfo> Model::Sample(float &pdf, RNG &rng) const
+std::optional<HitInfo> Model::Sample(RNG &rng) const
 {
-    return bvh->Sample(pdf, rng);
+    return bvh->Sample(rng);
 }
 
 std::optional<HitInfo> Model::Intersect(const Ray &ray, float tMin, float tMax) const

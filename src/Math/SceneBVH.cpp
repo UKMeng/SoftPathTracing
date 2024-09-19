@@ -314,6 +314,7 @@ std::optional<HitInfo> SceneBVH::Intersect(const Ray &ray, float tMin, float tMa
         closestHitInfo->hitPos = closestInstance->modelMatrix * Vec4f(closestHitInfo->hitPos, 1.0f);
         closestHitInfo->normal = Normalize((closestInstance->invModelMatrix.Transpose() * Vec4f(closestHitInfo->normal, 0.0f)).xyz()); // use Normal Matrix
         closestHitInfo->material = closestInstance->material;
+        closestHitInfo->object = closestInstance;
     }
 
     return closestHitInfo;

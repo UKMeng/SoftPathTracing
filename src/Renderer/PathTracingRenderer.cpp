@@ -51,8 +51,8 @@ Vec3f PathTracingRenderer::RRCastRay(const Ray &ray, int depth)
     Vec3f viewDirInLocal = hitPosFrame.GetLocalFromWorld(viewDir);
 
     // Sample light and calculate direct radiance
-    float pdfLight = 0.0f;
-    auto sampleLightResult = scene.Sample(pdfLight, rng);
+    float pdfLight = 1.0f / scene.GetArea();
+    auto sampleLightResult = scene.Sample(rng);
     if (sampleLightResult.has_value())
     {
         Vec3f lightPos = sampleLightResult->hitPos;
@@ -133,8 +133,8 @@ Vec3f PathTracingRenderer::CastRay(const Ray &ray, int depth)
     Vec3f viewDirInLocal = hitPosFrame.GetLocalFromWorld(viewDir);
 
     // Sample light and calculate direct radiance
-    float pdfLight = 0.0f;
-    auto sampleLightResult = scene.Sample(pdfLight, rng);
+    float pdfLight = 1.0f / scene.GetArea();
+    auto sampleLightResult = scene.Sample(rng);
     if (sampleLightResult.has_value())
     {
         Vec3f lightPos = sampleLightResult->hitPos;
@@ -194,14 +194,7 @@ Vec3f PathTracingRenderer::MISCastRay(const Ray &ray, int depth)
     // If depth != 0, return black color
     if (result->material->isEmissive)
     {
-        if (depth == 0)
-        {
-            return result->material->emissive;
-        }
-        else
-        {
-            return {0, 0, 0};
-        }
+        return result->material->emissive;
     }
 
     // Hit info
@@ -212,10 +205,10 @@ Vec3f PathTracingRenderer::MISCastRay(const Ray &ray, int depth)
     Vec3f viewDirInLocal = hitPosFrame.GetLocalFromWorld(viewDir);
 
     // Sample light and calculate direct radiance
-    float pdfLight = 0.0f;
-    auto sampleLightResult = scene.Sample(pdfLight, rng);
+    auto sampleLightResult = scene.Sample(rng);
     if (sampleLightResult.has_value())
     {
+        float pdfLight = 1.0f / scene.GetArea();
         Vec3f lightPos = sampleLightResult->hitPos;
         Vec3f lightNormal = sampleLightResult->normal;
         Vec3f emit = sampleLightResult->material->emissive;
@@ -244,13 +237,23 @@ Vec3f PathTracingRenderer::MISCastRay(const Ray &ray, int depth)
     Vec4f sample = result->material->Sample(viewDirInLocal, xi);
     Vec3f rayDirInLocal = sample.xyz();
     pdfBRDF = sample.w;
-    Vec3f Li = MISCastRay(Ray(hitPos, hitPosFrame.GetWorldFromLocal(rayDirInLocal)), depth + 1);
+    auto test = scene.Intersect(Ray(hitPos, hitPosFrame.GetWorldFromLocal(rayDirInLocal)));
 
-    // If the ray hit non-emitting object
-    if (Li.Norm() != 0.0)
+    if (test.has_value())
     {
         Vec3f brdf = result->material->BRDF(rayDirInLocal, viewDirInLocal);
-        L_Indirect = Li * brdf * rayDirInLocal.y / pdfBRDF;
+        if (test->material->isEmissive)
+        {
+            float pdfL = 1.0f / scene.GetArea();
+            float misWeight = MISMixWeight(pdfBRDF, pdfL);
+            Vec3f Le = test->object->material->emissive;
+            L_Direct += misWeight * Le * brdf * rayDirInLocal.y / pdfBRDF;
+        }
+        else
+        {
+            Vec3f Li = MISCastRay(Ray(hitPos, hitPosFrame.GetWorldFromLocal(rayDirInLocal)), depth + 1);
+            L_Indirect = Li * brdf * rayDirInLocal.y / pdfBRDF;
+        }
     }
 
     return L_Indirect + L_Direct;

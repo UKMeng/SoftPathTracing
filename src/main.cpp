@@ -24,8 +24,6 @@ int main()
 
     Film film { width, height };
 
-
-
     Plane plane { {0, 0, 0}, {0, 1, 0}, {100, 100}};
 
     Plane areaLight { {0, 0, 0}, {0, 0, 1}, {1, 1}};
@@ -34,6 +32,7 @@ int main()
     Sphere midLightBall { {0, 0, 0}, 0.5f};
 
     Model model("models/dragon_871k.obj");
+//    Model model("models/simple_dragon.obj");
 //    Model bunny("models/bunny/bunny.obj");
 
     Scene scene {};
@@ -50,7 +49,7 @@ int main()
     scene.AddObject(smallLightBall, lightMaterial, {0, 0.4, 2});
     scene.AddObject(plane,
 //                    new LambertianMaterial{{ColorRGB(153,136,204)}},
-                    new MicroFacetMaterial{{ColorRGB(153,136,204)}, 0.1, 0.95},
+                    new MicroFacetMaterial{{ColorRGB(153,136,204)}, 0.2, 0.5},
                     {0, -0.5, 0});
 
     scene.AddObject(
@@ -77,7 +76,7 @@ int main()
 
 
     PathTracingRenderer pathTracingRenderer { camera, scene };
-    pathTracingRenderer.Render(10240, "PT_MIS_test.ppm");
+    pathTracingRenderer.Render(128, "PT_test.ppm");
 
     return 0;
 }

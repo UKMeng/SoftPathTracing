@@ -30,9 +30,8 @@ std::optional<HitInfo> Triangle::Intersect(const Ray &ray, float tMin, float tMa
     return {};
 }
 
-std::optional<HitInfo> Triangle::Sample(float &pdf, RNG &rng) const
+std::optional<HitInfo> Triangle::Sample(RNG &rng) const
 {
-    pdf = 1.0f / area;
     float u = Sqrt(rng.Uniform());
     float v = rng.Uniform();
 

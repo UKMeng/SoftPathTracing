@@ -275,10 +275,10 @@ size_t BVH::Flatten(BVHTreeNode *node)
 {
     BVHNode bvhNode {
         node->bounds,
+        node->area,
         0,
         static_cast<uint16_t>(node->objects.size()),
-        static_cast<uint8_t>(node->splitAxis),
-        node->area
+        static_cast<uint8_t>(node->splitAxis)
     };
 
     size_t index = m_Nodes.size();
@@ -299,7 +299,7 @@ size_t BVH::Flatten(BVHTreeNode *node)
     return index;
 }
 
-std::optional<HitInfo> BVH::Sample(float &pdf, RNG &rng)
+std::optional<HitInfo> BVH::Sample(RNG &rng)
 {
     std::optional<HitInfo> hitInfo {};
 
@@ -329,8 +329,7 @@ std::optional<HitInfo> BVH::Sample(float &pdf, RNG &rng)
                 auto object = *objectIter++;
                 if (p < object->GetArea())
                 {
-                    hitInfo = object->Sample(pdf, rng);
-                    pdf *= object->GetArea();
+                    hitInfo = object->Sample(rng);
                     break;
                 }
                 else
@@ -341,8 +340,6 @@ std::optional<HitInfo> BVH::Sample(float &pdf, RNG &rng)
             break;
         }
     }
-    pdf /= m_Nodes[0].area;
-
     return hitInfo;
 }
 
