@@ -92,17 +92,17 @@ Mat4f Mat4f::Rotate(Vec3f eularAngle)
 //                  2 * b * d - 2 * a * c, 2 * a * b + 2 * c * d, 1 - 2 * b * b - 2 * c * c, 0,
 //                  0, 0, 0, 1});
 
-    // reference: https://pbr-book.org/4ed/Geometry_and_Transformations/Transformations
+    // left hand rule
     float x = Radians(eularAngle.x), y = Radians(eularAngle.y), z = Radians(eularAngle.z);
 
     Mat4f rotateX({1, 0, 0, 0,
-                   0, cos(x), -sin(x), 0,
-                   0, sin(x), cos(x), 0,
+                   0, cos(x), sin(x), 0,
+                   0, -sin(x), cos(x), 0,
                    0, 0, 0, 1});
 
-    Mat4f rotateY({cos(y), 0, sin(y), 0,
+    Mat4f rotateY({cos(y), 0, -sin(y), 0,
                    0, 1, 0, 0,
-                   -sin(y), 0, cos(y), 0,
+                   sin(y), 0, cos(y), 0,
                    0, 0, 0, 1});
 
     Mat4f rotateZ({cos(z), -sin(z), 0, 0,

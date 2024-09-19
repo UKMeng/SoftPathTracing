@@ -68,6 +68,7 @@ public:
     }
 
     // Matrix inversion (simple version)
+    // A* / det(A) = A-1
     Mat4f Inverse() const
     {
         Mat4f result;
