@@ -208,13 +208,13 @@ Vec3f PathTracingRenderer::MISCastRay(const Ray &ray, int depth)
     auto sampleLightResult = scene.Sample(rng);
     if (sampleLightResult.has_value())
     {
-        float pdfLight = 1.0f / scene.GetArea();
         Vec3f lightPos = sampleLightResult->hitPos;
         Vec3f lightNormal = sampleLightResult->normal;
         Vec3f emit = sampleLightResult->material->emissive;
         Vec3f lightDir = (lightPos - hitPos).Normalize();
         Vec3f lightDirInLocal = hitPosFrame.GetLocalFromWorld(lightDir);
         float distance = (lightPos - hitPos).Norm();
+        float pdfLight = 1.0f / ( scene.GetArea() * Dot(-lightDir, lightNormal) / (distance * distance) );
 
         auto hitTest = scene.Intersect(Ray(hitPos, lightDir));
         if (hitTest.has_value())
@@ -225,7 +225,7 @@ Vec3f PathTracingRenderer::MISCastRay(const Ray &ray, int depth)
                 Vec3f brdf = result->material->BRDF(lightDirInLocal, viewDirInLocal);
                 float pdfBRDF = result->material->PDF(lightDirInLocal, viewDirInLocal);
                 float misWeight = MISMixWeight(pdfLight, pdfBRDF);
-                L_Direct = misWeight * emit * brdf * lightDirInLocal.y * Dot(-lightDir, lightNormal) / (distance * distance) / pdfLight;
+                L_Direct = misWeight * emit * brdf * lightDirInLocal.y / pdfLight;
             }
         }
     }
@@ -244,7 +244,11 @@ Vec3f PathTracingRenderer::MISCastRay(const Ray &ray, int depth)
         Vec3f brdf = result->material->BRDF(rayDirInLocal, viewDirInLocal);
         if (test->material->isEmissive)
         {
-            float pdfL = 1.0f / scene.GetArea();
+            Vec3f lightPos = test->hitPos;
+            Vec3f lightNormal = test->normal;
+            Vec3f lightDir = (lightPos - hitPos).Normalize();
+            float distance = (lightPos - hitPos).Norm();
+            float pdfL = 1.0f / ( scene.GetArea() * Dot(-lightDir, lightNormal) / (distance * distance) );
             float misWeight = MISMixWeight(pdfBRDF, pdfL);
             Vec3f Le = test->object->material->emissive;
             L_Direct += misWeight * Le * brdf * rayDirInLocal.y / pdfBRDF;
