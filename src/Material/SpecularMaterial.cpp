@@ -7,7 +7,8 @@
 
 Vec3f SpecularMaterial::BRDF(const Vec3f &wi, const Vec3f &wo)
 {
-    return albedo / wi.y;
+    if (wi.x == -wo.x && wi.y == wo.y && wi.z == -wo.z) return albedo / wi.y;
+    return {0.f, 0.f, 0.f};
 }
 
 Vec4f SpecularMaterial::Sample(const Vec3f &wo, const Vec2f& xi)
